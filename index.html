@@ -170,6 +170,17 @@ input[type="file"]{display:none;}
 .file-upload-zone:hover{border-color:var(--rose);background:var(--rose-light);color:var(--rose-dark);}
 
 .actions-cell{display:flex;gap:4px;flex-wrap:wrap;}
+.parse-table{width:100%;border-collapse:collapse;font-size:12px;}
+.parse-table th{font-size:10px;padding:8px 10px;position:sticky;top:0;z-index:1;}
+.parse-table td{padding:6px 10px;}
+.parse-table td input{width:100%;border:1px solid transparent;background:transparent;color:var(--text);font-size:12px;padding:3px 5px;border-radius:3px;font-family:inherit;}
+.parse-table td input:hover{border-color:var(--border);background:var(--bg-input);}
+.parse-table td input:focus{border-color:var(--rose);background:#fff;outline:none;box-shadow:0 0 0 2px var(--rose-glow);}
+.parse-table .row-num{width:32px;text-align:center;color:var(--text-muted);font-size:11px;}
+.parse-table .col-partno{min-width:140px;}
+.parse-table .col-desc{min-width:200px;}
+.parse-table .col-qty{min-width:60px;}
+.parse-table .col-action{width:40px;text-align:center;}
 
 @media(max-width:1200px){.stat-cards{grid-template-columns:repeat(2,1fr);}.quick-actions{grid-template-columns:repeat(2,1fr);}}
 </style>
@@ -195,6 +206,9 @@ input[type="file"]{display:none;}
       <span class="nav-badge rose">快捷</span></div>
     <div class="nav-item" data-page="mapping">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>物料映射</div>
+    <div class="nav-item" data-page="parse">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>快速解析
+      <span class="nav-badge rose">新</span></div>
     <div class="nav-item" data-page="feed">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>数据投喂
       <span class="nav-badge red">新</span></div>
@@ -251,6 +265,27 @@ input[type="file"]{display:none;}
           <div class="search-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="搜索料号/关键词..." id="mapping-search" oninput="debouncedRenderMappings()"></div>
           <button class="btn btn-rose btn-sm" onclick="showMappingModal()">+ 新增映射</button></div></div>
         <div style="overflow-x:auto"><table><thead><tr><th>客户</th><th>客户料号</th><th>客户描述</th><th>伟健达产品</th><th>伟健达编码</th><th>内部参考号</th><th>匹配率</th><th>操作</th></tr></thead><tbody id="mapping-tbody"></tbody></table></div>
+      </div>
+    </div>
+
+    <div class="page" id="page-parse">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <div class="panel"><div class="panel-header"><h3>粘贴微信物料信息</h3></div>
+          <div style="padding:20px">
+            <div class="form-group"><label>选择客户（可选，方便后续归类）</label><select id="parse-customer"><option value="">暂不指定</option></select></div>
+            <div class="form-group"><label>从微信复制物料列表粘贴到这里</label>
+              <textarea class="import-textarea" id="parse-raw" placeholder="直接从微信聊天复制多行物料信息粘贴到这里&#10;&#10;支持格式：&#10;3101400880701 RES-SMD,100KQ,±5%,1206,1/4W,HF&#10;3101400880702 CAP-SMD,1uF,±10%,25V,0603,X7R,HF&#10;3101400880703 贴片电阻 RES-SMD,2.2Ω,±1%,0402,1/16W"></textarea></div>
+            <button class="btn btn-rose" onclick="parseWechatText()" style="width:100%;justify-content:center">解析为表格</button>
+          </div></div>
+        <div class="panel"><div class="panel-header"><h3>解析结果</h3>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-outline btn-sm" id="btn-copy-table" onclick="copyTableToClipboard()" style="display:none">复制表格</button>
+            <button class="btn btn-outline btn-sm" id="btn-copy-tsv" onclick="copyTSVToClipboard()" style="display:none">复制TSV(贴Excel)</button>
+            <button class="btn btn-rose btn-sm" id="btn-save-mappings" onclick="saveParsedAsMappings()" style="display:none">保存为映射</button>
+          </div></div>
+          <div style="padding:20px;overflow:auto" id="parse-result-area">
+            <div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg><p>在左侧粘贴微信物料信息</p><p style="font-size:12px;margin-top:4px;color:var(--text-muted)">支持一次粘贴几十行，自动拆分为表格</p></div></div>
+        </div>
       </div>
     </div>
 
@@ -385,9 +420,9 @@ function switchPage(page){
   document.querySelectorAll('.page').forEach(function(e){e.classList.remove('active');});
   var n=document.querySelector('[data-page="'+page+'"]');if(n)n.classList.add('active');
   var p=document.getElementById('page-'+page);if(p)p.classList.add('active');
-  var t={dashboard:'工作看板',import:'订单导入',mapping:'物料映射',feed:'数据投喂',orders:'订单管理',customers:'客户管理',inventory:'库存管理',dispatch:'发货管理'};
+  var t={dashboard:'工作看板',import:'订单导入',mapping:'物料映射',parse:'快速解析',feed:'数据投喂',orders:'订单管理',customers:'客户管理',inventory:'库存管理',dispatch:'发货管理'};
   document.getElementById('page-title').textContent=t[page]||page;
-  if(page==='import')prepImportPage();if(page==='mapping')prepMappingPage();if(page==='feed')renderFeed();
+  if(page==='import')prepImportPage();if(page==='mapping')prepMappingPage();if(page==='parse')prepParsePage();if(page==='feed')renderFeed();
   renderAll();
 }
 
@@ -483,6 +518,104 @@ function renderMappings(){
     var badgeCls=mr>=70?'badge-completed':mr>=40?'badge-pending':'badge-cancelled';
     return'<tr><td style="font-weight:600">'+(cust?cust.name:'-')+'</td><td style="font-family:monospace;font-size:12px">'+(m.customerPartNo||'-')+'</td><td style="font-size:11px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(m.customerDesc||'-')+'</td><td style="font-weight:600">'+(prod?prod.name:'-')+'</td><td style="font-family:monospace;font-size:11px">'+(prod?prod.code:'-')+'</td><td style="font-family:monospace;font-size:11px">'+(m.internalRefNo||'-')+'</td><td><span class="badge '+badgeCls+'">'+mr+'%</span></td><td class="actions-cell"><button class="btn btn-outline btn-sm" data-action="editMapping" data-id="'+m.id+'">编辑</button><button class="btn btn-outline btn-sm" style="color:var(--danger)" data-action="delMapping" data-id="'+m.id+'">删除</button></td></tr>';
   }).join('');
+}
+
+// ============ QUICK PARSE (WeChat Material List) ============
+var parsedRows=[];
+function prepParsePage(){
+  document.getElementById('parse-customer').innerHTML='<option value="">暂不指定</option>'+db.customers.map(function(c){return'<option value="'+c.id+'">'+c.name+'</option>';}).join('');
+}
+function parseWechatText(){
+  var raw=document.getElementById('parse-raw').value;if(!raw.trim()){showToast('请粘贴物料信息','warning');return;}
+  var lines=raw.split('\n').filter(function(l){return l.trim();});
+  parsedRows=[];
+  for(var i=0;i<lines.length;i++){
+    var line=lines[i].trim();
+    // Try to parse: [partNo] [description/rest...]
+    var partNo='',desc='',qty='1';
+    // Split by first space to separate part number
+    var spaceIdx=line.indexOf(' ');
+    if(spaceIdx>0){
+      partNo=line.substring(0,spaceIdx).trim();
+      desc=line.substring(spaceIdx+1).trim();
+    } else {
+      // No space - maybe just part number or tab delimited
+      var tabParts=line.split('\t');
+      if(tabParts.length>1){partNo=tabParts[0];desc=tabParts.slice(1).join(' ');}
+      else{partNo=line;desc='';}
+    }
+    // Try to detect quantity from end of line (e.g. "x50" or "×50" or " 50pcs")
+    var qtyMatch=desc.match(/[x×X]\s*(\d+)\s*(pcs|PCS|个)?\s*$/);
+    if(qtyMatch){qty=qtyMatch[1];desc=desc.replace(qtyMatch[0],'').trim();}
+    parsedRows.push({partNo:partNo,desc:desc,qty:qty});
+  }
+  renderParseTable();
+}
+function renderParseTable(){
+  var area=document.getElementById('parse-result-area');
+  if(!parsedRows.length){
+    area.innerHTML='<div class="empty-state"><p>没有解析到数据</p></div>';
+    document.getElementById('btn-copy-table').style.display='none';
+    document.getElementById('btn-copy-tsv').style.display='none';
+    document.getElementById('btn-save-mappings').style.display='none';
+    return;
+  }
+  document.getElementById('btn-copy-table').style.display='inline-flex';
+  document.getElementById('btn-copy-tsv').style.display='inline-flex';
+  document.getElementById('btn-save-mappings').style.display='inline-flex';
+  var html='<div style="font-size:12px;color:var(--text-secondary);margin-bottom:10px">共 '+parsedRows.length+' 行，点击单元格可编辑</div>';
+  html+='<table class="parse-table"><thead><tr><th class="row-num">#</th><th class="col-partno">客户料号</th><th class="col-desc">物料描述/规格</th><th class="col-qty">数量</th><th class="col-action"></th></tr></thead><tbody>';
+  for(var i=0;i<parsedRows.length;i++){
+    var r=parsedRows[i];
+    html+='<tr><td class="row-num">'+(i+1)+'</td>';
+    html+='<td><input value="'+escapeHtml(r.partNo)+'" data-row="'+i+'" data-field="partNo" onchange="updateParsedRow(this)" oninput="updateParsedRow(this)"></td>';
+    html+='<td><input value="'+escapeHtml(r.desc)+'" data-row="'+i+'" data-field="desc" onchange="updateParsedRow(this)" oninput="updateParsedRow(this)"></td>';
+    html+='<td><input value="'+escapeHtml(r.qty)+'" data-row="'+i+'" data-field="qty" onchange="updateParsedRow(this)" oninput="updateParsedRow(this)" style="text-align:center"></td>';
+    html+='<td class="col-action"><button class="btn btn-outline btn-sm" onclick="removeParsedRow('+i+')" style="padding:2px 6px;font-size:11px;color:var(--danger)">×</button></td></tr>';
+  }
+  html+='</tbody></table>';
+  area.innerHTML=html;
+}
+function updateParsedRow(input){
+  var i=parseInt(input.getAttribute('data-row'));
+  var field=input.getAttribute('data-field');
+  if(parsedRows[i])parsedRows[i][field]=input.value;
+}
+function removeParsedRow(i){
+  parsedRows.splice(i,1);renderParseTable();
+}
+function escapeHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function copyTableToClipboard(){
+  if(!parsedRows.length)return;
+  var html='<table border="1" cellpadding="4" cellspacing="0"><tr><th>#</th><th>客户料号</th><th>物料描述/规格</th><th>数量</th></tr>';
+  for(var i=0;i<parsedRows.length;i++){var r=parsedRows[i];html+='<tr><td>'+(i+1)+'</td><td>'+r.partNo+'</td><td>'+r.desc+'</td><td>'+r.qty+'</td></tr>';}
+  html+='</table>';
+  // Copy as HTML to clipboard
+  var blob=new Blob([html],{type:'text/html'});
+  var item=new ClipboardItem({'text/html':blob,'text/plain':new Blob([buildTSV()],{type:'text/plain'})});
+  navigator.clipboard.write([item]).then(function(){showToast('表格已复制，可直接粘贴到 Excel 或邮件');}).catch(function(){showToast('复制失败，请手动选择','error');});
+}
+function buildTSV(){
+  var lines=['客户料号\t物料描述/规格\t数量'];
+  for(var i=0;i<parsedRows.length;i++){var r=parsedRows[i];lines.push(r.partNo+'\t'+r.desc+'\t'+r.qty);}
+  return lines.join('\n');
+}
+function copyTSVToClipboard(){
+  if(!parsedRows.length)return;
+  navigator.clipboard.writeText(buildTSV()).then(function(){showToast('TSV已复制，可直接粘贴到Excel');});
+}
+function saveParsedAsMappings(){
+  var custId=document.getElementById('parse-customer').value;if(!custId){showToast('请先选择客户','warning');return;}
+  var added=0,skipped=0;
+  for(var i=0;i<parsedRows.length;i++){
+    var r=parsedRows[i];if(!r.partNo)continue;
+    var exists=db.mappings.filter(function(m){return m.customerId===custId&&m.customerPartNo===r.partNo;})[0];
+    if(exists){skipped++;continue;}
+    db.mappings.push({id:'M'+String(db.mappings.length+1).padStart(3,'0'),customerId:custId,customerPartNo:r.partNo,customerDesc:r.desc,keywords:'',productId:'',internalRefNo:'',note:''});
+    added++;
+  }
+  saveData(db);renderAll();
+  showToast('已添加 '+added+' 条映射'+(skipped>0?'，跳过 '+skipped+' 条重复':''));
 }
 
 // ============ DATA FEED ============
