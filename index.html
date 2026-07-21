@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>viite · 工作台</title>
+<style>
+:root {
+  --rose: #C48888; --rose-light: #F5EDED; --rose-dark: #A56B6B; --rose-border: #E8D4D4;
+  --rose-glow: rgba(196,136,136,0.18);
+  --bg: #F7F5F3; --bg-card: #FFFFFF; --bg-hover: #F2EFEC; --bg-input: #FBFAF9;
+  --border: #E6E3DF; --border-light: #F0EDEA;
+  --text: #1A1817; --text-secondary: #878480; --text-muted: #B0ACA8;
+  --success: #3D945B; --success-bg: #EDF7F1; --success-border: #C5E8D4;
+  --warning: #C4822A; --warning-bg: #FDF6EC; --warning-border: #F5E2C0;
+  --danger: #D14343; --danger-bg: #FDF0F0; --danger-border: #F5CCCC;
+  --info: #4A8FB2; --info-bg: #EDF5F9; --info-border: #C5DFEC;
+  --purple: #8B6BAE; --purple-bg: #F4F0F8; --purple-border: #DDD2EB;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04); --shadow: 0 2px 10px rgba(0,0,0,0.06); --shadow-lg: 0 8px 32px rgba(0,0,0,0.09);
+  --radius-sm: 6px; --radius: 10px; --radius-lg: 14px;
+  --transition: 0.2s cubic-bezier(0.4,0,0.2,1);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{font-size:15px;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei','Noto Sans SC',sans-serif;background:var(--bg);color:var(--text);display:flex;height:100vh;overflow:hidden;line-height:1.55;}
+
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px;}::-webkit-scrollbar-thumb:hover{background:#d5d2cd;}
+
+.sidebar{width:228px;background:#fff;border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;box-shadow:1px 0 0 rgba(0,0,0,0.015);}
+.sidebar-header{padding:24px 20px 20px;border-bottom:1px solid var(--border-light);}
+.sidebar-header .brand{display:flex;align-items:center;gap:12px;}
+.brand-mark{width:38px;height:38px;border-radius:var(--radius-sm);background:linear-gradient(145deg,var(--rose) 0%,var(--rose-dark) 100%);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 3px 12px rgba(196,136,136,0.3);}
+.brand-mark span{color:#fff;font-size:16px;font-weight:800;letter-spacing:-0.5px;font-family:'SF Pro Display',-apple-system,sans-serif;}
+.brand-text{display:flex;flex-direction:column;line-height:1.3;}
+.brand-logo-name{font-size:19px;font-weight:700;color:var(--text);letter-spacing:-0.6px;font-family:'SF Pro Display',-apple-system,sans-serif;}
+.brand-sub{font-size:10.5px;color:var(--text-muted);letter-spacing:0.2px;margin-top:1px;}
+.nav{flex:1;padding:10px 10px;overflow-y:auto;}
+.nav-section{font-size:10px;color:var(--text-muted);padding:16px 14px 6px;letter-spacing:1.4px;font-weight:600;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:var(--radius-sm);cursor:pointer;transition:all var(--transition);font-size:13.5px;color:var(--text-secondary);margin-bottom:1px;font-weight:500;}
+.nav-item:hover{background:var(--rose-light);color:var(--rose-dark);}
+.nav-item.active{background:var(--rose);color:#fff;box-shadow:0 2px 10px var(--rose-glow);font-weight:600;}
+.nav-item svg{width:16px;height:16px;flex-shrink:0;}
+.nav-badge{margin-left:auto;font-size:10px;padding:2px 8px;border-radius:10px;font-weight:600;letter-spacing:0.2px;}
+.nav-badge.rose{background:var(--rose-light);color:var(--rose-dark);}
+.nav-badge.red{background:var(--danger-bg);color:var(--danger);}
+
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--bg);}
+.topbar{padding:14px 28px;border-bottom:1px solid var(--border-light);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:rgba(255,255,255,0.75);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);}
+.topbar h1{font-size:16px;font-weight:700;color:var(--text);letter-spacing:-0.3px;}
+.topbar-time{font-size:11.5px;color:var(--text-muted);font-variant-numeric:tabular-nums;letter-spacing:0.2px;}
+.content{flex:1;overflow-y:auto;padding:24px 28px;}
+
+.stat-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;}
+.stat-card{background:var(--bg-card);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:20px 22px;display:flex;align-items:center;gap:16px;transition:all var(--transition);box-shadow:var(--shadow-sm);}
+.stat-card:hover{box-shadow:var(--shadow);border-color:var(--rose-border);transform:translateY(-1px);}
+.stat-icon{width:44px;height:44px;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.stat-icon svg{width:22px;height:22px;}
+.stat-value{font-size:28px;font-weight:800;letter-spacing:-0.5px;line-height:1.2;}
+.stat-label{font-size:12px;color:var(--text-secondary);margin-top:1px;}
+
+.quick-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;}
+.qa-card{background:var(--bg-card);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:18px 14px;cursor:pointer;transition:all var(--transition);text-align:center;box-shadow:var(--shadow-sm);}
+.qa-card:hover{border-color:var(--rose-border);box-shadow:var(--shadow);transform:translateY(-2px);}
+.qa-card:active{transform:translateY(0);}
+.qa-card svg{width:26px;height:26px;margin-bottom:6px;}
+.qa-card .qa-title{font-size:13.5px;font-weight:600;color:var(--text);}
+.qa-card .qa-desc{font-size:11px;color:var(--text-muted);margin-top:2px;}
+
+.panel{background:var(--bg-card);border:1px solid var(--border-light);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:20px;box-shadow:var(--shadow-sm);}
+.panel-header{padding:14px 20px;border-bottom:1px solid var(--border-light);display:flex;align-items:center;justify-content:space-between;}
+.panel-header h3{font-size:14px;font-weight:700;color:var(--text);letter-spacing:-0.2px;}
+
+.btn{padding:8px 18px;border-radius:var(--radius-sm);border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all var(--transition);display:inline-flex;align-items:center;gap:6px;letter-spacing:0.1px;user-select:none;white-space:nowrap;}
+.btn:active{transform:scale(0.97);}
+.btn-rose{background:var(--rose);color:#fff;box-shadow:0 2px 8px var(--rose-glow);}
+.btn-rose:hover{background:var(--rose-dark);box-shadow:0 4px 14px var(--rose-glow);}
+.btn-outline{background:var(--bg-card);border:1px solid var(--border);color:var(--text);}
+.btn-outline:hover{background:var(--bg-hover);border-color:var(--rose-border);}
+.btn-sm{padding:5px 12px;font-size:12px;border-radius:5px;}
+.btn-success{background:var(--success);color:#fff;}.btn-success:hover{filter:brightness(0.92);}
+.btn-warning{background:var(--warning);color:#fff;}.btn-warning:hover{filter:brightness(0.92);}
+.btn-danger{background:var(--danger);color:#fff;}.btn-danger:hover{filter:brightness(0.92);}
+.btn-purple{background:var(--purple);color:#fff;}.btn-purple:hover{filter:brightness(0.92);}
+
+table{width:100%;border-collapse:collapse;}
+th{text-align:left;padding:11px 16px;font-size:11px;color:var(--text-muted);font-weight:600;border-bottom:2px solid var(--border-light);letter-spacing:0.4px;background:var(--bg-input);}
+td{padding:11px 16px;font-size:13px;border-bottom:1px solid var(--border-light);transition:background var(--transition);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tbody tr:hover td{background:var(--rose-light);}
+
+.badge{display:inline-flex;align-items:center;padding:3px 12px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:0.2px;}
+.badge-pending{background:var(--warning-bg);color:var(--warning);border:1px solid var(--warning-border);}
+.badge-approval{background:var(--purple-bg);color:var(--purple);border:1px solid var(--purple-border);}
+.badge-approved{background:var(--info-bg);color:var(--info);border:1px solid var(--info-border);}
+.badge-confirmed{background:var(--info-bg);color:var(--info);border:1px solid var(--info-border);}
+.badge-preparing{background:var(--purple-bg);color:var(--purple);border:1px solid var(--purple-border);}
+.badge-shipped{background:var(--success-bg);color:var(--success);border:1px solid var(--success-border);}
+.badge-completed{background:#EDF2F8;color:#5A7DA3;border:1px solid #D0DEED;}
+.badge-cancelled{background:var(--danger-bg);color:var(--danger);border:1px solid var(--danger-border);}
+
+.form-group{margin-bottom:18px;}
+.form-group label{display:block;font-size:12px;font-weight:700;margin-bottom:6px;color:var(--text-secondary);letter-spacing:0.3px;}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-input);color:var(--text);font-size:13px;font-family:inherit;transition:all var(--transition);outline:none;}
+.form-group input:hover,.form-group select:hover,.form-group textarea:hover{border-color:var(--rose-border);}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--rose);box-shadow:0 0 0 3px var(--rose-glow);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+textarea{resize:vertical;min-height:60px;}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;z-index:1000;backdrop-filter:blur(2px);animation:fadeIn 0.2s ease;}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{background:var(--bg-card);border:1px solid var(--border-light);border-radius:var(--radius-lg);width:100%;max-width:740px;max-height:85vh;overflow-y:auto;padding:28px;box-shadow:var(--shadow-lg);animation:slideUp 0.25s cubic-bezier(0.4,0,0.2,1);}
+@keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.modal h2{font-size:18px;font-weight:700;margin-bottom:22px;color:var(--text);letter-spacing:-0.3px;}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:22px;padding-top:18px;border-top:1px solid var(--border-light);}
+
+.search-box{position:relative;}
+.search-box input{padding:8px 14px 8px 36px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-input);color:var(--text);font-size:13px;width:220px;transition:all var(--transition);outline:none;}
+.search-box input:focus{border-color:var(--rose);box-shadow:0 0 0 3px var(--rose-glow);width:260px;}
+.search-box svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--text-muted);}
+
+.empty-state{text-align:center;padding:52px 20px;color:var(--text-muted);}
+.empty-state svg{width:40px;height:40px;margin-bottom:10px;color:var(--border);}
+.empty-state p{font-size:14px;}
+
+.page{display:none;}.page.active{display:block;animation:pageIn 0.25s ease;}
+@keyframes pageIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+
+.toast{position:fixed;top:24px;right:24px;padding:12px 22px;border-radius:var(--radius);font-size:13px;font-weight:600;z-index:2000;box-shadow:var(--shadow-lg);animation:toastIn 0.3s cubic-bezier(0.4,0,0.2,1);}
+@keyframes toastIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+.toast-success{background:var(--success);color:#fff;}.toast-error{background:var(--danger);color:#fff;}.toast-warning{background:var(--warning);color:#fff;}
+
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--border-light);}
+.tab{padding:10px 22px;font-size:13px;cursor:pointer;color:var(--text-secondary);font-weight:500;border-bottom:2px solid transparent;transition:all var(--transition);}
+.tab:hover{color:var(--text);background:var(--bg-hover);}
+.tab.active{color:var(--rose-dark);border-bottom-color:var(--rose);font-weight:700;}
+
+.product-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 40px;gap:8px;align-items:end;margin-bottom:8px;padding:8px;background:var(--bg-input);border-radius:var(--radius-sm);border:1px solid var(--border-light);}
+.product-row .form-group{margin-bottom:0;}
+
+.import-textarea{width:100%;min-height:180px;background:var(--bg-input);color:var(--text);border:2px dashed var(--border);border-radius:var(--radius);padding:16px;font-family:'SF Mono','Cascadia Code','Consolas',monospace;font-size:12px;line-height:1.8;resize:vertical;transition:all var(--transition);outline:none;}
+.import-textarea:focus{border-color:var(--rose);border-style:solid;background:#fff;}
+.import-textarea::placeholder{color:var(--text-muted);font-size:12px;}
+
+.match-result{padding:14px 18px;border-radius:var(--radius);margin-bottom:10px;border:1px solid var(--border-light);transition:all var(--transition);background:#fff;}
+.match-result:hover{box-shadow:var(--shadow);}
+.match-success{border-left:3px solid var(--success);}
+.match-fail{border-left:3px solid var(--danger);}
+.match-warn{border-left:3px solid var(--warning);}
+.result-item{display:flex;justify-content:space-between;align-items:center;padding:2.5px 0;font-size:13px;}
+.result-item .rl{color:var(--text-muted);font-size:11px;min-width:68px;}
+.match-status{font-size:11px;padding:2px 10px;border-radius:12px;font-weight:600;}
+.ms-ok{background:var(--success-bg);color:var(--success);}
+.ms-no{background:var(--danger-bg);color:var(--danger);}
+.ms-warn{background:var(--warning-bg);color:var(--warning);}
+
+.feed-step{display:flex;gap:16px;align-items:flex-start;margin-bottom:24px;padding-bottom:24px;border-bottom:1px solid var(--border-light);}
+.feed-step:last-child{border-bottom:none;}
+.feed-step-num{width:34px;height:34px;border-radius:50%;background:var(--rose);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0;box-shadow:0 2px 8px var(--rose-glow);}
+.feed-step-body{flex:1;}
+.feed-step-body h4{font-size:14px;font-weight:700;margin-bottom:6px;}
+.feed-step-body p{font-size:12px;color:var(--text-secondary);margin-bottom:10px;line-height:1.6;}
+.feed-preview{max-height:300px;overflow-y:auto;border:1px solid var(--border-light);border-radius:var(--radius);}
+.feed-preview table{font-size:12px;}
+.feed-preview th{font-size:10px;padding:8px 12px;}
+
+input[type="file"]{display:none;}
+.file-upload-zone{border:2px dashed var(--border);border-radius:var(--radius);padding:14px 20px;text-align:center;cursor:pointer;transition:all var(--transition);background:var(--bg-input);font-size:13px;color:var(--text-secondary);}
+.file-upload-zone:hover{border-color:var(--rose);background:var(--rose-light);color:var(--rose-dark);}
+
+.actions-cell{display:flex;gap:4px;flex-wrap:wrap;}
+
+@media(max-width:1200px){.stat-cards{grid-template-columns:repeat(2,1fr);}.quick-actions{grid-template-columns:repeat(2,1fr);}}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <div class="brand">
+      <div class="brand-mark"><span>V</span></div>
+      <div class="brand-text">
+        <div class="brand-logo-name">viite</div>
+        <div class="brand-sub">元器件订单管理 · by Jasper</div>
+      </div>
+    </div>
+  </div>
+  <nav class="nav">
+    <div class="nav-item active" data-page="dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>工作看板</div>
+    <div class="nav-section">核心流程</div>
+    <div class="nav-item" data-page="import">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>订单导入
+      <span class="nav-badge rose">快捷</span></div>
+    <div class="nav-item" data-page="mapping">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>物料映射</div>
+    <div class="nav-item" data-page="feed">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>数据投喂
+      <span class="nav-badge red">新</span></div>
+    <div class="nav-section">业务管理</div>
+    <div class="nav-item" data-page="orders">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>订单管理
+      <span class="nav-badge red" id="pending-count">0</span></div>
+    <div class="nav-item" data-page="customers">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>客户管理</div>
+    <div class="nav-item" data-page="inventory">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>库存管理</div>
+    <div class="nav-item" data-page="dispatch">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>发货管理</div>
+  </nav>
+</aside>
+
+<main class="main">
+  <div class="topbar"><h1 id="page-title">工作看板</h1><div class="topbar-time" id="current-time"></div></div>
+  <div class="content" id="main-content">
+
+    <div class="page active" id="page-dashboard">
+      <div class="stat-cards" id="dashboard-stats"></div>
+      <div class="quick-actions">
+        <div class="qa-card" data-nav="import"><svg viewBox="0 0 24 24" fill="none" stroke="var(--rose)" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/></svg><div class="qa-title">导入客户订单</div><div class="qa-desc">粘贴Excel自动匹配</div></div>
+        <div class="qa-card" data-nav="feed"><svg viewBox="0 0 24 24" fill="none" stroke="var(--rose)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg><div class="qa-title">数据投喂</div><div class="qa-desc">批量更新产品库</div></div>
+        <div class="qa-card" data-nav="mapping"><svg viewBox="0 0 24 24" fill="none" stroke="var(--purple)" stroke-width="2"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/></svg><div class="qa-title">物料映射</div><div class="qa-desc">管理料号对照表</div></div>
+        <div class="qa-card" data-nav="dispatch"><svg viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><div class="qa-title">安排发货</div><div class="qa-desc">查看待发货订单</div></div>
+      </div>
+      <div class="panel"><div class="panel-header"><h3>最近订单</h3><button class="btn btn-rose btn-sm" data-nav="import">+ 导入订单</button></div>
+        <div style="overflow-x:auto"><table><thead><tr><th>订单号</th><th>客户</th><th>产品</th><th>金额</th><th>审批</th><th>状态</th><th>日期</th></tr></thead><tbody id="recent-orders-tbody"></tbody></table></div></div>
+    </div>
+
+    <div class="page" id="page-import">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <div class="panel"><div class="panel-header"><h3>步骤 1 · 粘贴客户订单数据</h3></div>
+          <div style="padding:20px">
+            <div class="form-group"><label>选择客户</label><select id="import-customer" onchange="onImportCustomerChange()"><option value="">请选择客户</option></select></div>
+            <div class="form-group"><label>粘贴订单行（从客户Excel复制）</label>
+              <textarea class="import-textarea" id="import-raw" placeholder="从客户系统下载的 Excel 中，复制订单行粘贴到这里&#10;&#10;示例：&#10;3101405310401 RC-02U2R20FT#N/A贴片电阻FengHua(FENGHUA)RES-SMD,2.2Ω,±1%,0402,1/16W,HF-28544100255&#10;3102100380101 贴片电容CAP-SMD,1uF,±10%,25V,0603,X7R,HFSanXing(SAMSUNG)PCS-52290"></textarea></div>
+            <div class="form-group"><label>订单备注</label><input type="text" id="import-remark" placeholder="如：急单、需检测报告等"></div>
+            <button class="btn btn-rose" onclick="parseImport()" style="width:100%;justify-content:center">解析并匹配物料</button>
+          </div></div>
+        <div class="panel"><div class="panel-header"><h3>步骤 2 · 匹配结果预览</h3><span id="match-summary" style="font-size:12px;color:var(--text-muted)">等待粘贴数据...</span></div>
+          <div style="padding:20px;max-height:520px;overflow-y:auto" id="import-results">
+            <div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/></svg><p>请先在左侧粘贴订单数据</p></div></div>
+          <div style="padding:0 20px 20px"><button class="btn btn-rose" id="btn-generate-order" onclick="generateOrderFromImport()" style="width:100%;justify-content:center;display:none">步骤 3 · 一键生成内部订单</button></div></div>
+      </div>
+    </div>
+
+    <div class="page" id="page-mapping">
+      <div class="panel"><div class="panel-header"><h3>客户物料映射表</h3>
+        <div style="display:flex;gap:8px;align-items:center">
+          <select id="mapping-customer-filter" onchange="renderMappings()" style="padding:8px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-input);color:var(--text);font-size:13px"><option value="">全部客户</option></select>
+          <div class="search-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="搜索料号/关键词..." id="mapping-search" oninput="debouncedRenderMappings()"></div>
+          <button class="btn btn-rose btn-sm" onclick="showMappingModal()">+ 新增映射</button></div></div>
+        <div style="overflow-x:auto"><table><thead><tr><th>客户</th><th>客户料号</th><th>客户描述</th><th>伟健达产品</th><th>伟健达编码</th><th>内部参考号</th><th>匹配率</th><th>操作</th></tr></thead><tbody id="mapping-tbody"></tbody></table></div>
+      </div>
+    </div>
+
+    <div class="page" id="page-feed">
+      <div class="panel"><div class="panel-header"><h3>数据投喂 · 批量更新产品数据库</h3></div>
+        <div style="padding:24px">
+          <div class="feed-step"><div class="feed-step-num">1</div><div class="feed-step-body"><h4>下载 CSV 模板</h4><p>按标准格式填入产品数据</p><button class="btn btn-outline btn-sm" onclick="downloadTemplate()">产品模板 CSV</button><button class="btn btn-outline btn-sm" onclick="downloadMappingTemplate()" style="margin-left:6px">映射模板 CSV</button></div></div>
+          <div class="feed-step"><div class="feed-step-num">2</div><div class="feed-step-body"><h4>上传 CSV 文件</h4><p>选择填好的 CSV 上传</p><div style="display:flex;gap:12px;align-items:center"><select id="feed-type" style="padding:9px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-input);color:var(--text);font-size:13px"><option value="products">产品数据</option><option value="mappings">映射数据</option></select><label class="file-upload-zone" id="file-drop-zone" style="flex:1;cursor:pointer"><span id="file-name-display">点击选择CSV文件，或拖拽到此处</span><input type="file" id="feed-file" accept=".csv" onchange="handleFeedFile(this)"></label></div></div></div>
+          <div class="feed-step"><div class="feed-step-num">3</div><div class="feed-step-body"><h4>预览并确认导入</h4><p>确认数据无误后点击导入</p><div class="feed-preview" id="feed-preview" style="display:none"></div><div id="feed-empty" style="text-align:center;padding:20px;color:var(--text-muted);font-size:13px">选择文件后将在此处预览...</div><button class="btn btn-rose btn-sm" id="btn-feed-import" onclick="executeFeedImport()" style="display:none;margin-top:10px">确认导入数据</button></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-orders">
+      <div class="panel"><div class="panel-header"><h3>全部订单</h3>
+        <div style="display:flex;gap:8px;align-items:center">
+          <div class="search-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="搜索订单号/客户..." id="order-search" oninput="debouncedRenderOrders()"></div>
+          <select id="order-status-filter" onchange="renderOrders()" style="padding:8px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-input);color:var(--text);font-size:13px"><option value="">全部状态</option><option value="pending">待处理</option><option value="needs_approval">待审批</option><option value="approved">已审批</option><option value="confirmed">已确认</option><option value="preparing">备货中</option><option value="shipped">已发货</option><option value="completed">已完成</option><option value="cancelled">已取消</option></select>
+          <button class="btn btn-rose btn-sm" data-nav="import">+ 导入订单</button></div></div>
+        <div style="overflow-x:auto"><table><thead><tr><th>订单号</th><th>客户</th><th>产品</th><th>数量</th><th>金额</th><th>审批</th><th>状态</th><th>日期</th><th>操作</th></tr></thead><tbody id="orders-tbody"></tbody></table></div>
+      </div>
+    </div>
+
+    <div class="page" id="page-customers">
+      <div class="panel"><div class="panel-header"><h3>客户列表</h3>
+        <div style="display:flex;gap:8px;align-items:center">
+          <div class="search-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="搜索客户..." id="customer-search" oninput="debouncedRenderCustomers()"></div>
+          <button class="btn btn-rose btn-sm" onclick="showNewCustomerModal()">+ 新增客户</button></div></div>
+        <div style="overflow-x:auto"><table><thead><tr><th>客户名称</th><th>联系人</th><th>电话</th><th>映射物料数</th><th>累计订单</th><th>累计金额</th><th>操作</th></tr></thead><tbody id="customers-tbody"></tbody></table></div>
+      </div>
+    </div>
+
+    <div class="page" id="page-inventory">
+      <div class="panel"><div class="panel-header"><h3>产品库存</h3>
+        <div style="display:flex;gap:8px;align-items:center">
+          <div class="search-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="搜索产品..." id="inventory-search" oninput="debouncedRenderInventory()"></div>
+          <button class="btn btn-rose btn-sm" onclick="showNewProductModal()">+ 添加产品</button></div></div>
+        <div style="overflow-x:auto"><table><thead><tr><th>产品编码</th><th>产品名称</th><th>类别</th><th>规格</th><th>库存数量</th><th>安全库存</th><th>单价</th><th>状态</th><th>操作</th></tr></thead><tbody id="inventory-tbody"></tbody></table></div>
+      </div>
+    </div>
+
+    <div class="page" id="page-dispatch">
+      <div class="tabs" id="dispatch-tabs"><div class="tab active" data-tab="to-ship">待发货</div><div class="tab" data-tab="shipped">已发货</div></div>
+      <div class="panel" style="border-top-left-radius:0"><div class="panel-header"><h3 id="dispatch-title">待发货订单</h3>
+        <div class="search-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="搜索..." id="dispatch-search" oninput="debouncedRenderDispatch()"></div></div>
+        <div style="overflow-x:auto"><table><thead><tr><th>订单号</th><th>客户</th><th>产品</th><th>数量</th><th>地址</th><th>状态</th><th>物流单号</th><th>操作</th></tr></thead><tbody id="dispatch-tbody"></tbody></table></div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<div class="modal-overlay" id="mapping-modal" style="display:none">
+  <div class="modal"><h2 id="mapping-modal-title">新增物料映射</h2>
+    <div class="form-row"><div class="form-group"><label>客户</label><select id="map-customer"></select></div><div class="form-group"><label>客户料号</label><input type="text" id="map-cust-partno" placeholder="如：3101405310401"></div></div>
+    <div class="form-group"><label>客户原始描述</label><textarea id="map-cust-desc" placeholder="粘贴客户系统中的完整描述" style="min-height:50px"></textarea></div>
+    <div class="form-row"><div class="form-group"><label>关键词（逗号分隔）</label><input type="text" id="map-keywords" placeholder="如：贴片电阻,2.2Ω,0402"></div><div class="form-group"><label>伟健达内部参考号</label><input type="text" id="map-internal-ref" placeholder="如：28544100255"></div></div>
+    <div class="form-group"><label>映射到伟健达产品</label><select id="map-product"><option value="">请选择对应产品</option></select></div>
+    <div class="form-group"><label>备注</label><input type="text" id="map-note"></div>
+    <div class="modal-actions"><button class="btn btn-outline" onclick="closeModal('mapping-modal')">取消</button><button class="btn btn-rose" onclick="saveMapping()">保存映射</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="customer-modal" style="display:none">
+  <div class="modal"><h2 id="customer-modal-title">新增客户</h2>
+    <div class="form-row"><div class="form-group"><label>客户名称</label><input type="text" id="cust-name" placeholder="公司名称"></div><div class="form-group"><label>联系人</label><input type="text" id="cust-contact"></div></div>
+    <div class="form-row"><div class="form-group"><label>电话</label><input type="text" id="cust-phone"></div><div class="form-group"><label>邮箱</label><input type="text" id="cust-email"></div></div>
+    <div class="form-group"><label>地址</label><input type="text" id="cust-address"></div>
+    <div class="form-group"><label>备注</label><textarea id="cust-remark"></textarea></div>
+    <div class="modal-actions"><button class="btn btn-outline" onclick="closeModal('customer-modal')">取消</button><button class="btn btn-rose" onclick="saveCustomer()">保存客户</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="product-modal" style="display:none">
+  <div class="modal"><h2 id="product-modal-title">添加产品</h2>
+    <div class="form-row"><div class="form-group"><label>产品名称</label><input type="text" id="prod-name"></div><div class="form-group"><label>产品编码</label><input type="text" id="prod-code"></div></div>
+    <div class="form-row-3"><div class="form-group"><label>类别</label><select id="prod-category"><option value="断路器">断路器</option><option value="接触器">接触器</option><option value="继电器">继电器</option><option value="熔断器">熔断器</option><option value="开关电源">开关电源</option><option value="接线端子">接线端子</option><option value="传感器">传感器</option><option value="变压器">变压器</option><option value="按钮开关">按钮开关</option><option value="电缆电线">电缆电线</option><option value="贴片电阻">贴片电阻</option><option value="贴片电容">贴片电容</option><option value="贴片电感">贴片电感</option><option value="二极管">二极管</option><option value="三极管">三极管</option><option value="IC芯片">IC芯片</option><option value="连接器">连接器</option><option value="其他">其他</option></select></div><div class="form-group"><label>规格型号</label><input type="text" id="prod-spec"></div><div class="form-group"><label>单价 (¥)</label><input type="number" id="prod-price" step="0.01"></div></div>
+    <div class="form-row"><div class="form-group"><label>库存</label><input type="number" id="prod-stock" value="0"></div><div class="form-group"><label>安全库存</label><input type="number" id="prod-safe-stock" value="10"></div></div>
+    <div class="modal-actions"><button class="btn btn-outline" onclick="closeModal('product-modal')">取消</button><button class="btn btn-rose" onclick="saveProduct()">保存产品</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="dispatch-modal" style="display:none">
+  <div class="modal"><h2>安排发货</h2>
+    <div class="form-group"><label>订单号</label><input type="text" id="dispatch-order-no" readonly style="background:var(--bg);color:var(--text-muted)"></div>
+    <div class="form-row"><div class="form-group"><label>客户</label><input type="text" id="dispatch-customer-name" readonly style="background:var(--bg);color:var(--text-muted)"></div><div class="form-group"><label>收货地址</label><input type="text" id="dispatch-address"></div></div>
+    <div class="form-row"><div class="form-group"><label>物流公司</label><select id="dispatch-carrier"><option value="顺丰速运">顺丰速运</option><option value="德邦物流">德邦物流</option><option value="中通快递">中通快递</option><option value="圆通速递">圆通速递</option><option value="韵达快递">韵达快递</option><option value="京东物流">京东物流</option><option value="其他">其他</option></select></div><div class="form-group"><label>物流单号</label><input type="text" id="dispatch-tracking"></div></div>
+    <div class="form-group"><label>备注</label><textarea id="dispatch-remark"></textarea></div>
+    <div class="modal-actions"><button class="btn btn-outline" onclick="closeModal('dispatch-modal')">取消</button><button class="btn btn-rose" onclick="confirmDispatch()">确认发货</button></div>
+  </div>
+</div>
+
+<script>
+'use strict';
+(function(){
+var STORE_KEY='elec_wb_v4';
+function loadData(){var r=localStorage.getItem(STORE_KEY);return r?JSON.parse(r):{orders:[],customers:[],products:[],mappings:[],nextOrderNo:1};}
+function saveData(data){localStorage.setItem(STORE_KEY,JSON.stringify(data));}
+var db=loadData();
+
+function seedDemoData(){
+  if(db.customers.length)return;
+  db.customers=[{id:'C001',name:'奥海科技股份有限公司',contact:'陈工',phone:'13912345678',email:'chen@aohaikeji.com',address:'东莞市松山湖xx路xx号',remark:'大客户，月结',createdAt:'2026-01-01'},{id:'C002',name:'深圳力源电气有限公司',contact:'张经理',phone:'13800138001',email:'zhang@lyelec.com',address:'深圳市宝安区xx路xx号',remark:'长期合作',createdAt:'2026-06-01'},{id:'C003',name:'广州恒达电力设备厂',contact:'李工',phone:'13900139002',email:'li@hdpower.com',address:'广州市天河区xx工业园',remark:'',createdAt:'2026-06-10'}];
+  db.products=[{id:'P001',code:'WJD-RC-0402-2R2',name:'贴片电阻 0402 2.2\u03a9 \u00b11%',category:'贴片电阻',spec:'0402 2.2\u03a9 \u00b11% 1/16W',price:0.012,stock:50000,safeStock:10000},{id:'P002',code:'WJD-CAP-0603-1U',name:'贴片电容 0603 1uF \u00b110%',category:'贴片电容',spec:'0603 1uF \u00b110% 25V X7R',price:0.025,stock:80000,safeStock:20000},{id:'P003',code:'WJD-IND-0805-10U',name:'贴片电感 0805 10uH \u00b120%',category:'贴片电感',spec:'0805 10uH \u00b120%',price:0.08,stock:15000,safeStock:3000},{id:'P004',code:'DZ47-63',name:'小型断路器 DZ47-63',category:'断路器',spec:'3P 63A',price:35.00,stock:200,safeStock:30},{id:'P005',code:'NSX100N',name:'塑壳断路器 NSX100N',category:'断路器',spec:'3P 100A',price:580.00,stock:45,safeStock:10},{id:'P006',code:'CJX2-0910',name:'交流接触器 CJX2-0910',category:'接触器',spec:'AC 220V 9A',price:28.00,stock:150,safeStock:20},{id:'P007',code:'RT18-32',name:'熔断器 RT18-32',category:'熔断器',spec:'32A 500V',price:6.50,stock:500,safeStock:100},{id:'P008',code:'S-100-24',name:'开关电源 S-100-24',category:'开关电源',spec:'100W DC 24V',price:75.00,stock:25,safeStock:10},{id:'P009',code:'BK-100',name:'控制变压器 BK-100',category:'变压器',spec:'100VA 380/220V',price:95.00,stock:18,safeStock:10}];
+  db.mappings=[{id:'M001',customerId:'C001',customerPartNo:'3101405310401',customerDesc:'RC-02U2R20FT#N/A贴片电阻FengHua(FENGHUA)RES-SMD,2.2\u03a9,\u00b11%,0402,1/16W,HF',keywords:'贴片电阻,2.2\u03a9,0402,风华',productId:'P001',internalRefNo:'28544100255',note:'风华品牌贴片电阻'},{id:'M002',customerId:'C001',customerPartNo:'3102100380101',customerDesc:'贴片电容CAP-SMD,1uF,\u00b110%,25V,0603,X7R,HFSanXing(SAMSUNG)',keywords:'贴片电容,1uF,0603,X7R,三星',productId:'P002',internalRefNo:'52290',note:'三星品牌贴片电容'},{id:'M003',customerId:'C002',customerPartNo:'LY-DZ47-63A',customerDesc:'小型断路器 DZ47 3P 63A',keywords:'断路器,DZ47,63A',productId:'P004',internalRefNo:'',note:''}];
+  db.orders=[{id:'OD20260715001',customerId:'C001',customerName:'奥海科技股份有限公司',products:[{productId:'P001',name:'贴片电阻 0402 2.2\u03a9 \u00b11%',spec:'0402 2.2\u03a9 \u00b11% 1/16W',price:0.012,qty:10000}],total:120.00,status:'shipped',approval:'approved',date:'2026-07-15',remark:'',tracking:'SF1234567890',carrier:'顺丰速运',customerPartNos:['3101405310401']},{id:'OD20260716001',customerId:'C001',customerName:'奥海科技股份有限公司',products:[{productId:'P002',name:'贴片电容 0603 1uF \u00b110%',spec:'0603 1uF \u00b110% 25V X7R',price:0.025,qty:20000},{productId:'P001',name:'贴片电阻 0402 2.2\u03a9 \u00b11%',spec:'0402 2.2\u03a9 \u00b11% 1/16W',price:0.012,qty:50000}],total:1100.00,status:'needs_approval',approval:'pending',date:'2026-07-16',remark:'急单，本周内发货',tracking:'',carrier:'',customerPartNos:['3102100380101','3101405310401']},{id:'OD20260716002',customerId:'C002',customerName:'深圳力源电气有限公司',products:[{productId:'P004',name:'小型断路器 DZ47-63',spec:'3P 63A',price:35.00,qty:30}],total:1050.00,status:'pending',approval:'none',date:'2026-07-16',remark:'',tracking:'',carrier:'',customerPartNos:[]}];
+  db.nextOrderNo=4;saveData(db);
+}
+seedDemoData();
+
+// ============ HELPERS ============
+function genOrderNo(){var t=new Date().toISOString().slice(0,10).replace(/-/g,'');var n=String(db.nextOrderNo).padStart(3,'0');db.nextOrderNo++;saveData(db);return'OD'+t+n;}
+function formatMoney(n){return'\u00a5'+Number(n).toFixed(2);}
+function showToast(m,t){t=t||'success';var e=document.createElement('div');e.className='toast toast-'+t;e.textContent=m;document.body.appendChild(e);setTimeout(function(){e.style.opacity='0';e.style.transform='translateX(30px)';e.style.transition='all 0.3s ease';setTimeout(function(){e.remove();},300);},2500);}
+function openModal(id){document.getElementById(id).style.display='flex';}
+function closeModal(id){document.getElementById(id).style.display='none';}
+
+function getStatusBadge(s){
+  var m={pending:'badge-pending',needs_approval:'badge-approval',approved:'badge-approved',confirmed:'badge-confirmed',preparing:'badge-preparing',shipped:'badge-shipped',completed:'badge-completed',cancelled:'badge-cancelled'};
+  var l={pending:'待处理',needs_approval:'待审批',approved:'已审批',confirmed:'已确认',preparing:'备货中',shipped:'已发货',completed:'已完成',cancelled:'已取消'};
+  return'<span class="badge '+(m[s]||'')+'">'+(l[s]||s)+'</span>';
+}
+function getApprovalBadge(s){
+  if(!s||s==='none')return'<span style="color:var(--text-muted);font-size:12px">-</span>';
+  var m={pending:'badge-approval',approved:'badge-approved',rejected:'badge-cancelled'};
+  var l={pending:'待审批',approved:'已审批',rejected:'已驳回'};
+  return'<span class="badge '+(m[s]||'')+'">'+(l[s]||s)+'</span>';
+}
+
+function switchPage(page){
+  document.querySelectorAll('.nav-item').forEach(function(e){e.classList.remove('active');});
+  document.querySelectorAll('.page').forEach(function(e){e.classList.remove('active');});
+  var n=document.querySelector('[data-page="'+page+'"]');if(n)n.classList.add('active');
+  var p=document.getElementById('page-'+page);if(p)p.classList.add('active');
+  var t={dashboard:'工作看板',import:'订单导入',mapping:'物料映射',feed:'数据投喂',orders:'订单管理',customers:'客户管理',inventory:'库存管理',dispatch:'发货管理'};
+  document.getElementById('page-title').textContent=t[page]||page;
+  if(page==='import')prepImportPage();if(page==='mapping')prepMappingPage();if(page==='feed')renderFeed();
+  renderAll();
+}
+
+// Event delegation for all action buttons
+document.getElementById('main-content').addEventListener('click',function(e){
+  var btn=e.target.closest('button');
+  if(!btn)return;
+  var action=btn.getAttribute('data-action');if(!action)return;
+  var id=btn.getAttribute('data-id');
+  var status=btn.getAttribute('data-status');
+  e.preventDefault();e.stopPropagation();
+  if(action==='updateStatus'&&id&&status)updateOrderStatus(id,status);
+  else if(action==='approve'&&id)approveOrder(id);
+  else if(action==='reject'&&id)rejectOrder(id);
+  else if(action==='deleteOrder'&&id)deleteOrder(id);
+  else if(action==='dispatch'&&id)openDispatchModal(id);
+  else if(action==='copyTracking'&&id)copyTracking(id);
+  else if(action==='editCustomer'&&id)editCustomer(id);
+  else if(action==='delCustomer'&&id)deleteCustomer(id);
+  else if(action==='editProduct'&&id)editProduct(id);
+  else if(action==='delProduct'&&id)deleteProduct(id);
+  else if(action==='editMapping'&&id)showMappingModal(id);
+  else if(action==='delMapping'&&id)deleteMapping(id);
+});
+
+// Nav + quick action card clicks
+document.querySelector('.nav').addEventListener('click',function(e){
+  var item=e.target.closest('.nav-item');if(!item)return;
+  switchPage(item.getAttribute('data-page'));
+});
+
+document.addEventListener('click',function(e){
+  var card=e.target.closest('[data-nav]');if(!card)return;
+  switchPage(card.getAttribute('data-nav'));
+});
+
+// Dispatch tabs
+document.getElementById('dispatch-tabs').addEventListener('click',function(e){
+  var tab=e.target.closest('.tab');if(!tab)return;
+  document.querySelectorAll('#dispatch-tabs .tab').forEach(function(x){x.classList.remove('active');});
+  tab.classList.add('active');renderDispatch();
+});
+
+// ============ DEBOUNCE ============
+function debounce(fn,delay){delay=delay||150;var t;return function(){var args=arguments;var ctx=this;clearTimeout(t);t=setTimeout(function(){fn.apply(ctx,args);},delay);};}
+var debouncedRenderOrders=debounce(renderOrders);
+var debouncedRenderCustomers=debounce(renderCustomers);
+var debouncedRenderInventory=debounce(renderInventory);
+var debouncedRenderDispatch=debounce(renderDispatch);
+var debouncedRenderMappings=debounce(renderMappings);
+
+function renderAll(){renderDashboard();renderOrders();renderCustomers();renderInventory();renderDispatch();renderMappings();updateBadges();}
+
+// ============ DASHBOARD ============
+function renderDashboard(){
+  var total=db.orders.length;
+  var pending=db.orders.filter(function(o){return o.status==='pending'||o.status==='needs_approval';}).length;
+  var shipped=db.orders.filter(function(o){return o.status==='shipped'||o.status==='completed';}).length;
+  var needsApproval=db.orders.filter(function(o){return o.approval==='pending';}).length;
+  var today=(new Date()).toISOString().slice(0,10);
+  var todayRev=db.orders.filter(function(o){return o.date===today;}).reduce(function(s,o){return s+o.total;},0);
+  document.getElementById('dashboard-stats').innerHTML=
+    '<div class="stat-card"><div class="stat-icon" style="background:rgba(196,136,136,0.1)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--rose)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></div><div><div class="stat-value">'+total+'</div><div class="stat-label">总订单数</div></div></div>'+
+    '<div class="stat-card"><div class="stat-icon" style="background:rgba(196,130,42,0.1)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--warning)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div><div class="stat-value">'+pending+'</div><div class="stat-label">待处理 / 待审批</div></div></div>'+
+    '<div class="stat-card"><div class="stat-icon" style="background:rgba(139,107,174,0.1)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--purple)" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div><div><div class="stat-value">'+needsApproval+'</div><div class="stat-label">待价格审批</div></div></div>'+
+    '<div class="stat-card"><div class="stat-icon" style="background:rgba(61,148,91,0.1)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div><div class="stat-value">'+formatMoney(todayRev)+'</div><div class="stat-label">今日订单金额</div></div></div>';
+  var recent=db.orders.slice().sort(function(a,b){return b.date.localeCompare(a.date);}).slice(0,5);
+  var tb=document.getElementById('recent-orders-tbody');
+  if(!recent.length){tb.innerHTML='<tr><td colspan="7"><div class="empty-state"><p>暂无订单</p></div></td></tr>';return;}
+  tb.innerHTML=recent.map(function(o){
+    return'<tr><td style="font-weight:600;color:var(--rose-dark)">'+o.id+'</td><td>'+o.customerName+'</td><td>'+o.products.map(function(p){return p.name;}).join('、')+'</td><td>'+formatMoney(o.total)+'</td><td>'+getApprovalBadge(o.approval)+'</td><td>'+getStatusBadge(o.status)+'</td><td>'+o.date+'</td></tr>';
+  }).join('');
+}
+
+// ============ MAPPING ============
+var editingMappingId=null;
+function prepMappingPage(){var sel=document.getElementById('mapping-customer-filter');sel.innerHTML='<option value="">全部客户</option>'+db.customers.map(function(c){return'<option value="'+c.id+'">'+c.name+'</option>';}).join('');renderMappings();}
+function prepMappingModal(){document.getElementById('map-customer').innerHTML='<option value="">请选择客户</option>'+db.customers.map(function(c){return'<option value="'+c.id+'">'+c.name+'</option>';}).join('');document.getElementById('map-product').innerHTML='<option value="">请选择对应产品</option>'+db.products.map(function(p){return'<option value="'+p.id+'">'+p.code+' '+p.name+' ('+p.category+')</option>';}).join('');}
+function showMappingModal(editId){prepMappingModal();if(editId){var m=db.mappings.filter(function(x){return x.id===editId;})[0];if(!m)return;editingMappingId=editId;document.getElementById('mapping-modal-title').textContent='编辑物料映射';document.getElementById('map-customer').value=m.customerId;document.getElementById('map-cust-partno').value=m.customerPartNo||'';document.getElementById('map-cust-desc').value=m.customerDesc||'';document.getElementById('map-keywords').value=m.keywords||'';document.getElementById('map-internal-ref').value=m.internalRefNo||'';document.getElementById('map-product').value=m.productId||'';document.getElementById('map-note').value=m.note||'';}else{editingMappingId=null;document.getElementById('mapping-modal-title').textContent='新增物料映射';['map-cust-partno','map-cust-desc','map-keywords','map-internal-ref','map-note'].forEach(function(id){document.getElementById(id).value='';});document.getElementById('map-customer').value='';document.getElementById('map-product').value='';}openModal('mapping-modal');}
+function saveMapping(){var custId=document.getElementById('map-customer').value;var partNo=document.getElementById('map-cust-partno').value.trim();var prodId=document.getElementById('map-product').value;if(!custId){showToast('请选择客户','warning');return;}if(!prodId){showToast('请选择伟健达产品','warning');return;}var data={customerId:custId,customerPartNo:partNo,customerDesc:document.getElementById('map-cust-desc').value.trim(),keywords:document.getElementById('map-keywords').value.trim(),productId:prodId,internalRefNo:document.getElementById('map-internal-ref').value.trim(),note:document.getElementById('map-note').value.trim()};if(editingMappingId){var m=db.mappings.filter(function(x){return x.id===editingMappingId;})[0];if(m){Object.keys(data).forEach(function(k){m[k]=data[k];});}}else{db.mappings.push({id:'M'+String(db.mappings.length+1).padStart(3,'0'),customerId:data.customerId,customerPartNo:data.customerPartNo,customerDesc:data.customerDesc,keywords:data.keywords,productId:data.productId,internalRefNo:data.internalRefNo,note:data.note});}editingMappingId=null;saveData(db);closeModal('mapping-modal');renderAll();showToast('映射已保存');}
+function deleteMapping(id){if(!confirm('确定删除此映射吗？'))return;db.mappings=db.mappings.filter(function(m){return m.id!==id;});saveData(db);renderAll();showToast('映射已删除','error');}
+function renderMappings(){
+  var custFilter=document.getElementById('mapping-customer-filter');var cf=custFilter?custFilter.value:'';
+  var searchEl=document.getElementById('mapping-search');var s=searchEl?(searchEl.value||'').toLowerCase():'';
+  var f=db.mappings.slice();if(cf)f=f.filter(function(m){return m.customerId===cf;});
+  if(s)f=f.filter(function(m){return(m.customerPartNo||'').toLowerCase().indexOf(s)>=0||(m.customerDesc||'').toLowerCase().indexOf(s)>=0||(m.keywords||'').toLowerCase().indexOf(s)>=0;});
+  var tb=document.getElementById('mapping-tbody');
+  if(!f.length){tb.innerHTML='<tr><td colspan="8"><div class="empty-state"><p>暂无物料映射</p><p style="font-size:12px;margin-top:4px">点击「新增映射」建立客户料号与伟健达产品的对应关系</p></div></td></tr>';return;}
+  tb.innerHTML=f.map(function(m){
+    var cust=db.customers.filter(function(c){return c.id===m.customerId;})[0];
+    var prod=db.products.filter(function(p){return p.id===m.productId;})[0];
+    var mr=m.keywords?Math.min(100,40+m.keywords.split(',').length*15):40;
+    var badgeCls=mr>=70?'badge-completed':mr>=40?'badge-pending':'badge-cancelled';
+    return'<tr><td style="font-weight:600">'+(cust?cust.name:'-')+'</td><td style="font-family:monospace;font-size:12px">'+(m.customerPartNo||'-')+'</td><td style="font-size:11px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(m.customerDesc||'-')+'</td><td style="font-weight:600">'+(prod?prod.name:'-')+'</td><td style="font-family:monospace;font-size:11px">'+(prod?prod.code:'-')+'</td><td style="font-family:monospace;font-size:11px">'+(m.internalRefNo||'-')+'</td><td><span class="badge '+badgeCls+'">'+mr+'%</span></td><td class="actions-cell"><button class="btn btn-outline btn-sm" data-action="editMapping" data-id="'+m.id+'">编辑</button><button class="btn btn-outline btn-sm" style="color:var(--danger)" data-action="delMapping" data-id="'+m.id+'">删除</button></td></tr>';
+  }).join('');
+}
+
+// ============ DATA FEED ============
+var feedPendingData=null;
+function downloadTemplate(){
+  var csv='code,name,category,spec,price,stock,safeStock\nWJD-EX-001,示例产品,贴片电阻,0402 1K\u03a9 \u00b15%,0.01,10000,2000\nWJD-EX-002,示例产品,贴片电容,0603 100nF \u00b110%,0.02,20000,5000';
+  downloadCSV(csv,'viite_产品模板.csv');
+}
+function downloadMappingTemplate(){
+  var custName=db.customers.length>0?db.customers[0].name:'客户名称';
+  var prodCode=db.products.length>0?db.products[0].code:'产品编码';
+  var csv='customerName,customerPartNo,customerDesc,keywords,productCode,internalRefNo,note\n'+custName+',3101405310401,原始描述文本,贴片电阻/2.2\u03a9/0402,'+prodCode+',28544100255,备注说明';
+  downloadCSV(csv,'viite_映射模板.csv');
+}
+function downloadCSV(csv,filename){
+  var blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
+  var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download=filename;a.click();URL.revokeObjectURL(url);
+}
+function handleFeedFile(input){
+  var file=input.files[0];if(!file)return;
+  document.getElementById('file-name-display').textContent=file.name;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var text=e.target.result;var lines=text.split('\n').filter(function(l){return l.trim();});
+    if(lines.length<2){showToast('CSV文件格式错误','error');return;}
+    var headers=parseCSVLine(lines[0]);var rows=lines.slice(1).map(function(l){return parseCSVLine(l);});
+    feedPendingData={headers:headers,rows:rows,type:document.getElementById('feed-type').value};
+    previewFeedData();
+  };
+  reader.readAsText(file,'UTF-8');
+}
+function parseCSVLine(line){var result=[],current='',inQuotes=false;for(var i=0;i<line.length;i++){var ch=line[i];if(ch==='"'){inQuotes=!inQuotes;}else if(ch===','&&!inQuotes){result.push(current.trim());current='';}else{current+=ch;}}result.push(current.trim());return result;}
+function previewFeedData(){
+  if(!feedPendingData||!feedPendingData.rows.length){document.getElementById('feed-empty').style.display='block';document.getElementById('feed-preview').style.display='none';document.getElementById('btn-feed-import').style.display='none';return;}
+  document.getElementById('feed-empty').style.display='none';document.getElementById('feed-preview').style.display='block';document.getElementById('btn-feed-import').style.display='inline-flex';
+  var preview=document.getElementById('feed-preview');
+  var type=feedPendingData.type;
+  var html='<div style="padding:10px 14px;background:var(--bg-input);font-size:12px;color:var(--text-secondary);margin-bottom:10px;border-radius:var(--radius-sm)">即将导入 <b>'+feedPendingData.rows.length+'</b> 条'+(type==='products'?'产品':'映射')+'数据</div><table><thead><tr>';
+  feedPendingData.headers.forEach(function(h){html+='<th>'+h+'</th>';});
+  html+='</tr></thead><tbody>';
+  feedPendingData.rows.forEach(function(r){html+='<tr>';r.forEach(function(c){html+='<td>'+(c||'-')+'</td>';});html+='</tr>';});
+  html+='</tbody></table>';preview.innerHTML=html;
+}
+function executeFeedImport(){
+  if(!feedPendingData)return;
+  var type=feedPendingData.type,headers=feedPendingData.headers,imported=0,updated=0;
+  feedPendingData.rows.forEach(function(row){
+    if(row.length<headers.length||!row.some(function(c){return c;}))return;
+    var obj={};headers.forEach(function(h,i){obj[h.trim()]=row[i]||'';});
+    if(type==='products'){
+      var existing=db.products.filter(function(p){return p.code===obj.code;})[0];
+      if(existing){existing.name=obj.name||existing.name;existing.category=obj.category||existing.category;existing.spec=obj.spec||existing.spec;existing.price=parseFloat(obj.price)||existing.price;existing.stock=parseInt(obj.stock)||existing.stock;existing.safeStock=parseInt(obj.safeStock)||existing.safeStock;updated++;}else{var pid='P'+String(db.products.length+1).padStart(3,'0');db.products.push({id:pid,code:obj.code||pid,name:obj.name||'',category:obj.category||'其他',spec:obj.spec||'',price:parseFloat(obj.price)||0,stock:parseInt(obj.stock)||0,safeStock:parseInt(obj.safeStock)||10});imported++;}
+    }else{
+      var cust=db.customers.filter(function(c){return c.name===obj.customerName;})[0];
+      var prod=db.products.filter(function(p){return p.code===obj.productCode;})[0];
+      if(!cust||!prod)return;
+      var exMap=db.mappings.filter(function(m){return m.customerId===cust.id&&m.customerPartNo===obj.customerPartNo;})[0];
+      if(exMap){exMap.customerDesc=obj.customerDesc||exMap.customerDesc;exMap.keywords=obj.keywords||exMap.keywords;exMap.productId=prod.id;exMap.internalRefNo=obj.internalRefNo||exMap.internalRefNo;exMap.note=obj.note||exMap.note;updated++;}else{db.mappings.push({id:'M'+String(db.mappings.length+1).padStart(3,'0'),customerId:cust.id,customerPartNo:obj.customerPartNo||'',customerDesc:obj.customerDesc||'',keywords:obj.keywords||'',productId:prod.id,internalRefNo:obj.internalRefNo||'',note:obj.note||''});imported++;}
+    }
+  });
+  saveData(db);feedPendingData=null;
+  document.getElementById('feed-preview').style.display='none';document.getElementById('btn-feed-import').style.display='none';
+  document.getElementById('feed-empty').style.display='block';document.getElementById('feed-empty').innerHTML='<p style="color:var(--success);font-weight:600">导入完成！</p>';
+  document.getElementById('file-name-display').textContent='点击选择CSV文件，或拖拽到此处';document.getElementById('feed-file').value='';
+  renderAll();showToast('成功导入 '+imported+' 条，更新 '+updated+' 条');
+}
+function renderFeed(){
+  feedPendingData=null;
+  document.getElementById('feed-preview').style.display='none';
+  document.getElementById('btn-feed-import').style.display='none';
+  document.getElementById('feed-empty').style.display='block';
+  document.getElementById('feed-empty').innerHTML='<p>选择文件后将在此处预览...</p>';
+  document.getElementById('file-name-display').textContent='点击选择CSV文件，或拖拽到此处';
+}
+
+// ============ ORDER IMPORT ============
+var importParsedRows=[];
+function prepImportPage(){
+  document.getElementById('import-customer').innerHTML='<option value="">请选择客户</option>'+db.customers.map(function(c){return'<option value="'+c.id+'">'+c.name+'</option>';}).join('');
+}
+function onImportCustomerChange(){
+  var custId=document.getElementById('import-customer').value;
+  if(custId){var count=db.mappings.filter(function(m){return m.customerId===custId;}).length;document.getElementById('import-raw').placeholder='已为该客户配置 '+count+' 条物料映射。从客户Excel复制订单行粘贴到此处...';}
+}
+function parseCustomerRow(line){
+  if(!line.trim())return null;
+  var parts=line.trim().split(/\s+/);
+  if(parts.length<2)return{raw:line,customerPartNo:parts[0]||line,desc:line,keywords:[]};
+  var customerPartNo=parts[0];
+  var rest=parts.slice(1).join(' ');
+  var keywords=[];
+  var typePatterns=['贴片电阻','贴片电容','贴片电感','二极管','三极管','IC','芯片','连接器','断路器','接触器','继电器','熔断器','变压器','开关电源','接线端子','传感器','按钮开关','电缆'];
+  typePatterns.forEach(function(t){if(line.indexOf(t)>=0)keywords.push(t);});
+  var valMatch=line.match(/(\d+\.?\d*(\u03a9|uF|pF|nF|H|uH|nH|A|V|W|%))/gi);
+  if(valMatch)valMatch.forEach(function(v){keywords.push(v);});
+  var sizeMatch=line.match(/\b(\d{4})\b/g);
+  if(sizeMatch)sizeMatch.forEach(function(s){keywords.push(s);});
+  return{raw:line,customerPartNo:customerPartNo,desc:rest,keywords:keywords};
+}
+function matchRowToProduct(parsed,custId){
+  var exactMap=db.mappings.filter(function(m){return m.customerId===custId&&m.customerPartNo===parsed.customerPartNo;})[0];
+  if(exactMap){var prod=db.products.filter(function(p){return p.id===exactMap.productId;})[0];return{found:true,method:'exact',mapping:exactMap,product:prod,confidence:100};}
+  var custMappings=db.mappings.filter(function(m){return m.customerId===custId&&m.keywords;});
+  var bestMatch=null,bestScore=0;
+  custMappings.forEach(function(m){
+    var kws=m.keywords.split(',').map(function(k){return k.trim();}).filter(function(k){return k;});
+    if(!kws.length)return;
+    var hits=kws.filter(function(k){return parsed.raw.indexOf(k)>=0;});
+    var score=hits.length/kws.length;
+    if(score>bestScore){bestScore=score;bestMatch=m;}
+  });
+  if(bestMatch&&bestScore>=0.4){var prod2=db.products.filter(function(p){return p.id===bestMatch.productId;})[0];return{found:true,method:'keyword',mapping:bestMatch,product:prod2,confidence:Math.round(bestScore*100)};}
+  if(parsed.keywords.length){
+    var allProds=db.products;var bestProd=null,bestPScore=0;
+    allProds.forEach(function(p){
+      var hits=parsed.keywords.filter(function(k){return p.name.indexOf(k)>=0||p.spec.indexOf(k)>=0||p.category.indexOf(k)>=0;});
+      var score=hits.length/Math.max(parsed.keywords.length,1);
+      if(score>bestPScore){bestPScore=score;bestProd=p;}
+    });
+    if(bestProd&&bestPScore>=0.3)return{found:true,method:'product',mapping:null,product:bestProd,confidence:Math.round(bestPScore*70)};
+  }
+  return{found:false,method:'none',mapping:null,product:null,confidence:0};
+}
+function parseImport(){
+  var custId=document.getElementById('import-customer').value;if(!custId){showToast('请先选择客户','warning');return;}
+  var raw=document.getElementById('import-raw').value;if(!raw.trim()){showToast('请粘贴订单数据','warning');return;}
+  var lines=raw.split('\n').filter(function(l){return l.trim();});
+  importParsedRows=lines.map(function(line){var parsed=parseCustomerRow(line);if(!parsed)return null;var match=matchRowToProduct(parsed,custId);match.raw=parsed.raw;match.customerPartNo=parsed.customerPartNo;match.desc=parsed.desc;match.keywords=parsed.keywords;return match;}).filter(function(r){return r;});
+  renderImportResults();
+}
+function renderImportResults(){
+  var container=document.getElementById('import-results');
+  var btn=document.getElementById('btn-generate-order');
+  var summary=document.getElementById('match-summary');
+  if(!importParsedRows.length){
+    container.innerHTML='<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><p>没有解析到有效数据</p></div>';
+    btn.style.display='none';summary.textContent='无数据';return;
+  }
+  var matched=importParsedRows.filter(function(r){return r.found;}).length;
+  var total=importParsedRows.length;
+  summary.textContent='共 '+total+' 行，匹配 '+matched+' 行 ('+Math.round(matched/total*100)+'%)';
+  btn.style.display='block';
+
+  var prodOptions=db.products.map(function(p){return'<option value="'+p.id+'">'+p.code+' '+p.name+'</option>';}).join('');
+  container.innerHTML=importParsedRows.map(function(r,i){
+    var cls=r.found?(r.confidence<60?'match-warn':'match-success'):'match-fail';
+    var statusCls=r.found?(r.confidence<60?'ms-warn':'ms-ok'):'ms-no';
+    var statusText=r.found?(r.confidence<60?'低置信度':'已匹配'):'未匹配';
+    var methodText=r.method==='exact'?'精确匹配':r.method==='keyword'?'关键词匹配':r.method==='product'?'模糊匹配':'';
+    var productHtml=r.found?(
+      '<div class="result-item"><span class="rl">匹配方式</span><span>'+methodText+'</span></div>'+
+      '<div class="result-item"><span class="rl">伟健达产品</span><span style="color:var(--rose-dark);font-weight:600">'+(r.product?r.product.code+' '+r.product.name:'-')+'</span></div>'+
+      '<div class="result-item"><span class="rl">库存</span><span style="color:'+(r.product&&r.product.stock<=r.product.safeStock?'var(--danger)':'var(--success)')+';font-weight:600">'+(r.product?r.product.stock.toLocaleString():'0')+'</span></div>'+
+      '<div class="result-item"><span class="rl">单价</span><span>'+formatMoney(r.product?r.product.price:0)+'</span></div>'
+    ):'<div class="result-item"><span class="rl">提示</span><span style="color:var(--danger)">未匹配，请去「物料映射」添加或在下方手动选择产品</span></div>';
+
+    var manualSelect=!r.found?'<select onchange="manualMatchRow(this)" data-row="'+i+'" style="flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-input);color:var(--text);font-size:12px"><option value="">手动选择产品...</option>'+prodOptions+'</select>':'';
+    return'<div class="match-result '+cls+'">'+
+      '<div class="result-item"><span class="rl">客户料号</span><span style="font-family:monospace;font-size:12px">'+(r.customerPartNo||'-')+'</span></div>'+
+      '<div class="result-item"><span class="rl">描述</span><span style="font-size:11px;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(r.raw||'').substring(0,80)+'</span></div>'+
+      productHtml+
+      '<div class="result-item"><span class="rl">匹配</span><span class="match-status '+statusCls+'">'+statusText+' ('+r.confidence+'%)</span></div>'+
+      '<div style="margin-top:12px;display:flex;gap:8px;align-items:center">'+
+        '<input type="number" value="1" min="1" style="width:80px;padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-input);color:var(--text);font-size:13px" data-row="'+i+'" placeholder="数量">'+
+        manualSelect+
+      '</div></div>';
+  }).join('');
+}
+function manualMatchRow(sel){
+  var i=parseInt(sel.getAttribute('data-row'));
+  var prodId=sel.value;if(!prodId)return;
+  var prod=db.products.filter(function(p){return p.id===prodId;})[0];
+  importParsedRows[i].found=true;importParsedRows[i].method='manual';importParsedRows[i].product=prod;importParsedRows[i].confidence=100;
+  renderImportResults();
+}
+function generateOrderFromImport(){
+  var custId=document.getElementById('import-customer').value;
+  var cust=db.customers.filter(function(c){return c.id===custId;})[0];
+  if(!cust){showToast('请选择客户','warning');return;}
+  var inputs=document.querySelectorAll('#import-results input[type="number"]');
+  var products=[],partNos=[],total=0;
+  inputs.forEach(function(inp){
+    var i=parseInt(inp.getAttribute('data-row'));var row=importParsedRows[i];
+    var qty=parseInt(inp.value)||0;if(!row||!row.found||qty<=0)return;
+    var prod=row.product;if(!prod)return;
+    products.push({productId:prod.id,name:prod.name,spec:prod.spec||'',price:prod.price,qty:qty});
+    total+=prod.price*qty;partNos.push(row.customerPartNo);
+  });
+  if(!products.length){showToast('没有可生成的有效订单行','warning');return;}
+  var orderNo=genOrderNo();var remark=document.getElementById('import-remark').value;
+  db.orders.push({id:orderNo,customerId:custId,customerName:cust.name,products:products,total:total,status:'needs_approval',approval:'pending',date:(new Date()).toISOString().slice(0,10),remark:remark,tracking:'',carrier:'',customerPartNos:partNos});
+  saveData(db);importParsedRows=[];
+  document.getElementById('import-raw').value='';
+  document.getElementById('import-results').innerHTML='<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="20 6 9 17 4 12"/></svg><p style="color:var(--success);font-weight:600">订单生成成功！</p></div>';
+  document.getElementById('btn-generate-order').style.display='none';
+  document.getElementById('match-summary').textContent='等待粘贴数据...';
+  renderAll();showToast('订单 '+orderNo+' 已生成，状态：待审批');
+}
+
+// ============ ORDERS ============
+function renderOrders(){
+  var searchEl=document.getElementById('order-search');var search=searchEl?(searchEl.value||'').toLowerCase():'';
+  var sfEl=document.getElementById('order-status-filter');var sf=sfEl?sfEl.value||'':'';
+  var f=db.orders.slice();
+  if(search)f=f.filter(function(o){return o.id.toLowerCase().indexOf(search)>=0||o.customerName.toLowerCase().indexOf(search)>=0;});
+  if(sf)f=f.filter(function(o){return o.status===sf;});
+  f.sort(function(a,b){return b.date.localeCompare(a.date)||b.id.localeCompare(a.id);});
+  var tb=document.getElementById('orders-tbody');
+  if(!f.length){tb.innerHTML='<tr><td colspan="9"><div class="empty-state"><p>暂无匹配订单</p></div></td></tr>';updateBadges();return;}
+  tb.innerHTML=f.map(function(o){
+    var tq=o.products.reduce(function(s,p){return s+p.qty;},0);
+    var actions='';
+    if(o.status==='pending')actions='<button class="btn btn-outline btn-sm" data-action="updateStatus" data-id="'+o.id+'" data-status="needs_approval">提交审批</button> <button class="btn btn-outline btn-sm" style="color:var(--danger)" data-action="updateStatus" data-id="'+o.id+'" data-status="cancelled">取消</button>';
+    else if(o.status==='needs_approval'||o.approval==='pending')actions='<button class="btn btn-success btn-sm" data-action="approve" data-id="'+o.id+'">通过审批</button> <button class="btn btn-outline btn-sm" style="color:var(--danger)" data-action="reject" data-id="'+o.id+'">驳回</button>';
+    else if(o.status==='approved'||(o.status==='needs_approval'&&o.approval==='approved'))actions='<button class="btn btn-outline btn-sm" data-action="updateStatus" data-id="'+o.id+'" data-status="confirmed">确认下单</button>';
+    else if(o.status==='confirmed')actions='<button class="btn btn-outline btn-sm" data-action="updateStatus" data-id="'+o.id+'" data-status="preparing">备货</button>';
+    else if(o.status==='preparing')actions='<button class="btn btn-success btn-sm" data-action="dispatch" data-id="'+o.id+'">发货</button>';
+    else if(o.status==='shipped')actions='<button class="btn btn-outline btn-sm" data-action="updateStatus" data-id="'+o.id+'" data-status="completed">完成</button>';
+    if(o.tracking)actions+=' <button class="btn btn-outline btn-sm" data-action="copyTracking" data-id="'+o.tracking+'">复制单号</button>';
+    actions+=' <button class="btn btn-outline btn-sm" style="color:var(--danger)" data-action="deleteOrder" data-id="'+o.id+'">删除</button>';
+    return'<tr><td style="font-weight:600;color:var(--rose-dark)">'+o.id+'</td><td>'+o.customerName+'</td><td>'+o.products.map(function(p){return p.name;}).join('<br>')+'</td><td>'+tq+'</td><td>'+formatMoney(o.total)+'</td><td>'+getApprovalBadge(o.approval)+'</td><td>'+getStatusBadge(o.status)+'</td><td>'+o.date+'</td><td class="actions-cell">'+actions+'</td></tr>';
+  }).join('');
+  updateBadges();
+}
+function approveOrder(id){
+  var o=db.orders.filter(function(x){return x.id===id;})[0];if(!o)return;
+  o.approval='approved';o.status='approved';saveData(db);renderAll();
+  showToast('订单 '+id+' 价格审批已通过');
+}
+function rejectOrder(id){
+  var reason=prompt('请输入驳回原因：');if(!reason)return;
+  var o=db.orders.filter(function(x){return x.id===id;})[0];if(!o)return;
+  o.approval='rejected';o.status='pending';o.remark=(o.remark||'')+' [驳回:'+reason+']';
+  saveData(db);renderAll();showToast('订单 '+id+' 已驳回','error');
+}
+function updateOrderStatus(orderId,newStatus){
+  var o=db.orders.filter(function(x){return x.id===orderId;})[0];if(!o)return;
+  if(newStatus==='shipped'||newStatus==='completed')o.products.forEach(function(p){var pr=db.products.filter(function(x){return x.id===p.productId;})[0];if(pr)pr.stock=Math.max(0,pr.stock-p.qty);});
+  if(newStatus==='cancelled'&&(o.status==='shipped'||o.status==='completed'))o.products.forEach(function(p){var pr=db.products.filter(function(x){return x.id===p.productId;})[0];if(pr)pr.stock+=p.qty;});
+  o.status=newStatus;if(newStatus==='completed')o.completedAt=(new Date()).toISOString().slice(0,10);
+  saveData(db);renderAll();
+  var labels={pending:'待处理',needs_approval:'待审批',approved:'已审批',confirmed:'已确认',preparing:'备货中',shipped:'已发货',completed:'已完成',cancelled:'已取消'};
+  showToast('订单 '+orderId+' \u2192 '+labels[newStatus]);
+}
+function deleteOrder(orderId){
+  if(!confirm('确定删除订单 '+orderId+' 吗？此操作不可恢复！'))return;
+  db.orders=db.orders.filter(function(o){return o.id!==orderId;});saveData(db);renderAll();showToast('订单 '+orderId+' 已删除','error');
+}
+
+// ============ CUSTOMERS ============
+var editingCustomerId=null;
+function showNewCustomerModal(){
+  editingCustomerId=null;document.getElementById('customer-modal-title').textContent='新增客户';
+  ['cust-name','cust-contact','cust-phone','cust-email','cust-address','cust-remark'].forEach(function(id){document.getElementById(id).value='';});
+  openModal('customer-modal');
+}
+function editCustomer(id){
+  var c=db.customers.filter(function(x){return x.id===id;})[0];if(!c)return;
+  editingCustomerId=id;document.getElementById('customer-modal-title').textContent='编辑客户';
+  document.getElementById('cust-name').value=c.name;document.getElementById('cust-contact').value=c.contact||'';
+  document.getElementById('cust-phone').value=c.phone||'';document.getElementById('cust-email').value=c.email||'';
+  document.getElementById('cust-address').value=c.address||'';document.getElementById('cust-remark').value=c.remark||'';
+  openModal('customer-modal');
+}
+function saveCustomer(){
+  var name=document.getElementById('cust-name').value.trim();if(!name){showToast('请输入客户名称','warning');return;}
+  var data={name:name,contact:document.getElementById('cust-contact').value.trim(),phone:document.getElementById('cust-phone').value.trim(),email:document.getElementById('cust-email').value.trim(),address:document.getElementById('cust-address').value.trim(),remark:document.getElementById('cust-remark').value.trim()};
+  if(editingCustomerId){var c=db.customers.filter(function(x){return x.id===editingCustomerId;})[0];if(c){Object.keys(data).forEach(function(k){c[k]=data[k];});}}
+  else db.customers.push({id:'C'+String(db.customers.length+1).padStart(3,'0'),name:data.name,contact:data.contact,phone:data.phone,email:data.email,address:data.address,remark:data.remark,createdAt:(new Date()).toISOString().slice(0,10)});
+  editingCustomerId=null;saveData(db);closeModal('customer-modal');renderAll();showToast('客户已保存');
+}
+function deleteCustomer(id){
+  var c=db.customers.filter(function(x){return x.id===id;})[0];if(!c)return;
+  if(db.orders.some(function(o){return o.customerId===id;})){showToast('该客户有关联订单，无法删除','error');return;}
+  if(!confirm('确定删除 \u300c'+c.name+'\u300d 吗？'))return;
+  db.customers=db.customers.filter(function(x){return x.id!==id;});
+  db.mappings=db.mappings.filter(function(m){return m.customerId!==id;});
+  saveData(db);renderAll();showToast('已删除','error');
+}
+function renderCustomers(){
+  var searchEl=document.getElementById('customer-search');var search=searchEl?(searchEl.value||'').toLowerCase():'';
+  var f=db.customers.slice();
+  if(search)f=f.filter(function(c){return c.name.toLowerCase().indexOf(search)>=0||(c.contact||'').toLowerCase().indexOf(search)>=0;});
+  var tb=document.getElementById('customers-tbody');
+  if(!f.length){tb.innerHTML='<tr><td colspan="7"><div class="empty-state"><p>暂无客户</p></div></td></tr>';return;}
+  tb.innerHTML=f.map(function(c){
+    var cos=db.orders.filter(function(o){return o.customerId===c.id;});
+    var ta=cos.reduce(function(s,o){return s+o.total;},0);
+    var mc=db.mappings.filter(function(m){return m.customerId===c.id;}).length;
+    return'<tr><td style="font-weight:600">'+c.name+'</td><td>'+(c.contact||'-')+'</td><td>'+(c.phone||'-')+'</td><td style="font-weight:600;color:var(--rose-dark)">'+mc+' 条</td><td>'+cos.length+' 单</td><td>'+formatMoney(ta)+'</td><td class="actions-cell"><button class="btn btn-outline btn-sm" data-action="editCustomer" data-id="'+c.id+'">编辑</button> <button class="btn btn-outline btn-sm" style="color:var(--danger)" data-action="delCustomer" data-id="'+c.id+'">删除</button></td></tr>';
+  }).join('');
+}
+
+// ============ INVENTORY ============
+var editingProductId=null;
+function showNewProductModal(){
+  editingProductId=null;document.getElementById('product-modal-title').textContent='添加产品';
+  ['prod-name','prod-code','prod-spec','prod-price','prod-stock','prod-safe-stock'].forEach(function(id){document.getElementById(id).value='';});
+  document.getElementById('prod-safe-stock').value='10';openModal('product-modal');
+}
+function editProduct(id){
+  var p=db.products.filter(function(x){return x.id===id;})[0];if(!p)return;
+  editingProductId=id;document.getElementById('product-modal-title').textContent='编辑产品';
+  document.getElementById('prod-name').value=p.name;document.getElementById('prod-code').value=p.code||'';
+  document.getElementById('prod-category').value=p.category;document.getElementById('prod-spec').value=p.spec||'';
+  document.getElementById('prod-price').value=p.price;document.getElementById('prod-stock').value=p.stock;
+  document.getElementById('prod-safe-stock').value=p.safeStock;openModal('product-modal');
+}
+function saveProduct(){
+  var name=document.getElementById('prod-name').value.trim();if(!name){showToast('请输入产品名称','warning');return;}
+  var data={name:name,code:document.getElementById('prod-code').value.trim(),category:document.getElementById('prod-category').value,spec:document.getElementById('prod-spec').value.trim(),price:parseFloat(document.getElementById('prod-price').value)||0,stock:parseInt(document.getElementById('prod-stock').value)||0,safeStock:parseInt(document.getElementById('prod-safe-stock').value)||10};
+  if(editingProductId){var p=db.products.filter(function(x){return x.id===editingProductId;})[0];if(p){Object.keys(data).forEach(function(k){p[k]=data[k];});}}
+  else{var pid='P'+String(db.products.length+1).padStart(3,'0');if(!data.code)data.code=pid;db.products.push({id:pid,code:data.code,name:data.name,category:data.category,spec:data.spec,price:data.price,stock:data.stock,safeStock:data.safeStock});}
+  editingProductId=null;saveData(db);closeModal('product-modal');renderAll();showToast('产品已保存');
+}
+function deleteProduct(id){
+  var p=db.products.filter(function(x){return x.id===id;})[0];if(!p)return;
+  if(db.orders.some(function(o){return o.products.some(function(op){return op.productId===id;});})){showToast('该产品有关联订单','error');return;}
+  if(!confirm('确定删除 \u300c'+p.name+'\u300d 吗？'))return;
+  db.products=db.products.filter(function(x){return x.id!==id;});
+  db.mappings=db.mappings.filter(function(m){return m.productId!==id;});
+  saveData(db);renderAll();showToast('已删除','error');
+}
+function renderInventory(){
+  var searchEl=document.getElementById('inventory-search');var search=searchEl?(searchEl.value||'').toLowerCase():'';
+  var f=db.products.slice();
+  if(search)f=f.filter(function(p){return p.name.toLowerCase().indexOf(search)>=0||(p.code||'').toLowerCase().indexOf(search)>=0||p.category.indexOf(search)>=0;});
+  var tb=document.getElementById('inventory-tbody');
+  if(!f.length){tb.innerHTML='<tr><td colspan="9"><div class="empty-state"><p>暂无产品</p></div></td></tr>';return;}
+  tb.innerHTML=f.map(function(p){
+    var ss=p.stock<=p.safeStock?'<span class="badge badge-cancelled">库存不足</span>':p.stock<=p.safeStock*2?'<span class="badge badge-pending">偏低</span>':'<span class="badge badge-completed">正常</span>';
+    return'<tr><td style="font-family:monospace;font-size:12px">'+(p.code||'-')+'</td><td style="font-weight:600">'+p.name+'</td><td>'+p.category+'</td><td>'+(p.spec||'-')+'</td><td style="font-weight:700;color:'+(p.stock<=p.safeStock?'var(--danger)':'var(--text)')+'">'+p.stock.toLocaleString()+'</td><td>'+p.safeStock.toLocaleString()+'</td><td>'+formatMoney(p.price)+'</td><td>'+ss+'</td><td class="actions-cell"><button class="btn btn-outline btn-sm" data-action="editProduct" data-id="'+p.id+'">编辑</button> <button class="btn btn-outline btn-sm" style="color:var(--danger)" data-action="delProduct" data-id="'+p.id+'">删除</button></td></tr>';
+  }).join('');
+}
+
+// ============ DISPATCH ============
+var dispatchingOrderId=null;
+function openDispatchModal(orderId){
+  var o=db.orders.filter(function(x){return x.id===orderId;})[0];if(!o)return;
+  dispatchingOrderId=orderId;
+  document.getElementById('dispatch-order-no').value=o.id;
+  document.getElementById('dispatch-customer-name').value=o.customerName;
+  var c=db.customers.filter(function(x){return x.id===o.customerId;})[0];
+  document.getElementById('dispatch-address').value=c?c.address:'';
+  document.getElementById('dispatch-tracking').value='';document.getElementById('dispatch-remark').value='';
+  openModal('dispatch-modal');
+}
+function confirmDispatch(){
+  var o=db.orders.filter(function(x){return x.id===dispatchingOrderId;})[0];if(!o)return;
+  var t=document.getElementById('dispatch-tracking').value.trim();
+  if(!t){showToast('请输入物流单号','warning');return;}
+  o.tracking=t;o.carrier=document.getElementById('dispatch-carrier').value;o.status='shipped';
+  o.products.forEach(function(p){var pr=db.products.filter(function(x){return x.id===p.productId;})[0];if(pr)pr.stock=Math.max(0,pr.stock-p.qty);});
+  saveData(db);closeModal('dispatch-modal');dispatchingOrderId=null;renderAll();showToast('订单 '+o.id+' 已发货');
+}
+function copyTracking(t){navigator.clipboard.writeText(t).then(function(){showToast('物流单号已复制');});}
+function renderDispatch(){
+  var activeTab=(document.querySelector('#dispatch-tabs .tab.active')||{}).getAttribute('data-tab')||'to-ship';
+  var searchEl=document.getElementById('dispatch-search');var search=searchEl?(searchEl.value||'').toLowerCase():'';
+  var tel=document.getElementById('dispatch-title');var f;
+  if(activeTab==='to-ship'){tel.textContent='待发货订单';f=db.orders.filter(function(o){return o.status==='preparing'||o.status==='confirmed'||o.status==='approved';});}
+  else{tel.textContent='已发货订单';f=db.orders.filter(function(o){return o.status==='shipped'||o.status==='completed';});}
+  if(search)f=f.filter(function(o){return o.id.toLowerCase().indexOf(search)>=0||o.customerName.toLowerCase().indexOf(search)>=0;});
+  f.sort(function(a,b){return b.date.localeCompare(a.date);});
+  var tb=document.getElementById('dispatch-tbody');
+  if(!f.length){tb.innerHTML='<tr><td colspan="8"><div class="empty-state"><p>暂无'+(activeTab==='to-ship'?'待发货':'已发货')+'订单</p></div></td></tr>';return;}
+  tb.innerHTML=f.map(function(o){
+    var tq=o.products.reduce(function(s,p){return s+p.qty;},0);
+    var act=activeTab==='to-ship'?'<button class="btn btn-success btn-sm" data-action="dispatch" data-id="'+o.id+'">安排发货</button>':'';
+    if(o.tracking)act+=' <button class="btn btn-outline btn-sm" data-action="copyTracking" data-id="'+o.tracking+'">复制单号</button>';
+    return'<tr><td style="font-weight:600;color:var(--rose-dark)">'+o.id+'</td><td>'+o.customerName+'</td><td>'+o.products.map(function(p){return p.name;}).join('、')+'</td><td>'+tq+'</td><td>'+(o.remark||'-')+'</td><td>'+getStatusBadge(o.status)+'</td><td style="font-family:monospace;font-size:12px">'+(o.tracking||'-')+'</td><td class="actions-cell">'+act+'</td></tr>';
+  }).join('');
+}
+function updateBadges(){
+  var totalPending=db.orders.filter(function(o){return o.status==='pending'||o.status==='needs_approval';}).length;
+  var b=document.getElementById('pending-count');if(b){b.textContent=totalPending;b.style.display=totalPending>0?'inline-flex':'none';}
+}
+
+// ============ CLOCK ============
+function updateClock(){
+  document.getElementById('current-time').textContent=(new Date()).toLocaleString('zh-CN',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+}
+setInterval(updateClock,1000);updateClock();
+
+// ============ INIT ============
+renderAll();
+
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(function(o){
+  o.addEventListener('click',function(e){if(e.target===o)o.style.display='none';});
+});
+
+// Escape to close modals
+document.addEventListener('keydown',function(e){if(e.key==='Escape')document.querySelectorAll('.modal-overlay').forEach(function(m){m.style.display='none';});});
+
+// Drag & drop for feed file
+var dropZone=document.getElementById('file-drop-zone');
+if(dropZone){
+  dropZone.addEventListener('dragover',function(e){e.preventDefault();dropZone.style.borderColor='var(--rose)';dropZone.style.background='var(--rose-light)';});
+  dropZone.addEventListener('dragleave',function(){dropZone.style.borderColor='';dropZone.style.background='';});
+  dropZone.addEventListener('drop',function(e){e.preventDefault();dropZone.style.borderColor='';dropZone.style.background='';var file=e.dataTransfer.files[0];if(file){var input=document.getElementById('feed-file');var dt=new DataTransfer();dt.items.add(file);input.files=dt.files;handleFeedFile(input);}});
+}
+
+})();
+</script>
+</body>
+</html>
