@@ -380,7 +380,6 @@ input[type="file"]{display:none;}
 
 <script>
 'use strict';
-(function(){
 var STORE_KEY='elec_wb_v4';
 function loadData(){var r=localStorage.getItem(STORE_KEY);return r?JSON.parse(r):{orders:[],customers:[],products:[],mappings:[],nextOrderNo:1};}
 function saveData(data){localStorage.setItem(STORE_KEY,JSON.stringify(data));}
@@ -1019,7 +1018,8 @@ if(dropZone){
   dropZone.addEventListener('drop',function(e){e.preventDefault();dropZone.style.borderColor='';dropZone.style.background='';var file=e.dataTransfer.files[0];if(file){var input=document.getElementById('feed-file');var dt=new DataTransfer();dt.items.add(file);input.files=dt.files;handleFeedFile(input);}});
 }
 
-})();
+
+
 </script>
 </body>
 </html>
