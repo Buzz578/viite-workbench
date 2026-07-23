@@ -183,7 +183,7 @@ input[type="file"]{display:none;}
 .parse-table .col-qty{min-width:60px;}
 .parse-table .col-action{width:40px;text-align:center;}
 
-.smart-upload-zone{border:2px dashed var(--rose-border);border-radius:var(--radius-lg);padding:40px 20px;text-align:center;cursor:pointer;transition:all var(--transition);background:var(--bg-input);margin-bottom:16px;}
+.smart-upload-zone{display:block;border:2px dashed var(--rose-border);border-radius:var(--radius-lg);padding:32px 20px;text-align:center;cursor:pointer;transition:all var(--transition);background:var(--bg-input);margin-bottom:0;min-height:120px;}
 .smart-upload-zone:hover{border-color:var(--rose);background:var(--rose-light);}
 .smart-upload-zone.dragover{border-color:var(--rose);background:var(--rose-light);}
 .smart-upload-zone svg{width:36px;height:36px;color:var(--rose);margin-bottom:10px;}
@@ -297,42 +297,46 @@ input[type="file"]{display:none;}
     </div>
 
     <div class="page" id="page-smartparse">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
-        <div class="panel"><div class="panel-header"><h3>上传图片或粘贴文本</h3></div>
-          <div style="padding:20px">
-            <div class="form-group"><label>选择客户（可选）</label><select id="sparse-customer"><option value="">暂不指定</option></select></div>
-            <label class="smart-upload-zone" id="smart-upload-zone" for="sparse-image">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-              <p>点击上传截图/图片（支持多张批量上传）</p>
-              <p class="hint">支持 PNG、JPG、WebP。可一次选择多张，OCR 逐张识别后自动合并</p>
-              <input type="file" id="sparse-image" accept="image/*" multiple onchange="handleSmartParseImages(this)" style="display:none">
-            </label>
-            <div style="text-align:center;color:var(--text-muted);font-size:12px;margin:12px 0">— 或者粘贴文本 —</div>
-            <div class="form-group"><label>粘贴物料文本</label>
-              <textarea class="import-textarea" id="sparse-text" placeholder="直接从微信复制多行物料信息粘贴到这里&#10;&#10;示例格式：&#10;3101400880701 RES-SMD,100KQ,±5%,1206,1/4W,HF&#10;3101400880702 CAP-SMD,1uF,±10%,25V,0603,X7R,HF" style="min-height:120px"></textarea></div>
-            <div id="ocr-progress-area"></div>
-            <button class="btn btn-rose" onclick="executeSmartParse()" style="width:100%;justify-content:center">开始解析</button>
-          </div></div>
-        <div class="panel"><div class="panel-header"><h3>解析结果 · 逐格校验修正</h3>
-          <div style="display:flex;gap:6px">
-            <button class="btn btn-outline btn-sm" id="btn-sp-export-tsv" onclick="smartExportTSV()" style="display:none">导出TSV</button>
-            <button class="btn btn-outline btn-sm" id="btn-sp-export-html" onclick="smartExportHTML()" style="display:none">复制表格</button>
-            <button class="btn btn-outline btn-sm" id="btn-sp-save-map" onclick="smartSaveAsMappings()" style="display:none">保存映射</button>
-            <button class="btn btn-rose btn-sm" id="btn-sp-create-order" onclick="smartCreateOrder()" style="display:none">生成订单</button>
-          </div></div>
-          <div style="padding:20px;overflow:auto" id="sparse-result-area">
-            <div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/></svg><p>上传图片或粘贴文本后开始解析</p><p style="font-size:12px;margin-top:4px;color:var(--text-muted)">解析结果展示为表格，每格可直接点击编辑修正</p></div></div>
-        </div>
-      </div>
-      <div class="panel" style="margin-top:20px">
-        <div class="panel-header"><h3>列设置 · 选择需要提取的列</h3><button class="btn btn-outline btn-sm" onclick="resetColumnsToDefault()">恢复默认</button></div>
-        <div style="padding:16px 20px">
-          <div style="font-size:12px;color:var(--text-secondary);margin-bottom:10px">勾选需要的列，或输入自定义列名后按回车添加。列的顺序即表格从左到右的顺序。</div>
+      <div class="panel"><div class="panel-header"><h3>列设置 · 选择需要提取的列</h3><button class="btn btn-outline btn-sm" onclick="resetColumnsToDefault()">恢复默认</button></div>
+        <div style="padding:14px 20px">
+          <div style="font-size:12px;color:var(--text-secondary);margin-bottom:10px">勾选需要的列，自定义列名回车添加。列的顺序即表格从左到右的顺序。</div>
           <div class="col-check-list" id="sparse-col-list"></div>
           <div style="display:flex;gap:8px;align-items:center;margin-top:10px">
             <input type="text" id="sparse-custom-col" placeholder="输入自定义列名，回车添加" style="flex:1;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-input);color:var(--text);font-size:13px" onkeydown="if(event.key==='Enter'){addCustomColumn();event.preventDefault();}">
             <button class="btn btn-outline btn-sm" onclick="addCustomColumn()">添加</button>
           </div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <div class="panel">
+          <div class="panel-header"><h3>上传图片或粘贴文本</h3></div>
+          <div style="padding:20px">
+            <div class="form-group"><label>选择客户（可选）</label><select id="sparse-customer"><option value="">暂不指定</option></select></div>
+            <div id="smart-upload-zone" class="smart-upload-zone" onclick="document.getElementById('sparse-image').click()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
+              <p>点击此处上传截图/图片（支持多张）</p>
+              <p class="hint">支持 PNG、JPG、WebP。OCR 逐张识别后自动合并。也可拖拽图片到此处。</p>
+            </div>
+            <input type="file" id="sparse-image" accept="image/*" multiple onchange="handleSmartParseImages(this)" style="display:none">
+            <div style="text-align:center;color:var(--text-muted);font-size:12px;margin:14px 0">— 或者直接粘贴文本 —</div>
+            <textarea class="import-textarea" id="sparse-text" placeholder="直接从微信复制多行物料信息粘贴到这里&#10;&#10;示例：&#10;3101400880701 RES-SMD,100KQ,±5%,1206,1/4W,HF&#10;3101400880702 CAP-SMD,1uF,±10%,25V,0603,X7R,HF" style="min-height:100px;width:100%"></textarea>
+            <div id="ocr-progress-area" style="margin-top:10px"></div>
+            <button class="btn btn-rose" onclick="executeSmartParse()" style="width:100%;justify-content:center;margin-top:12px">开始解析</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header"><h3>解析结果 · 逐格校验修正</h3>
+            <div style="display:flex;gap:6px">
+              <button class="btn btn-outline btn-sm" id="btn-sp-export-tsv" onclick="smartExportTSV()" style="display:none">导出TSV</button>
+              <button class="btn btn-outline btn-sm" id="btn-sp-export-html" onclick="smartExportHTML()" style="display:none">复制表格</button>
+              <button class="btn btn-outline btn-sm" id="btn-sp-save-map" onclick="smartSaveAsMappings()" style="display:none">保存映射</button>
+              <button class="btn btn-rose btn-sm" id="btn-sp-create-order" onclick="smartCreateOrder()" style="display:none">生成订单</button>
+            </div>
+          </div>
+          <div style="padding:20px;overflow:auto;max-height:520px" id="sparse-result-area">
+            <div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/></svg><p>上传图片或粘贴文本后点「开始解析」</p><p style="font-size:12px;margin-top:4px;color:var(--text-muted)">结果以表格展示，每格可直接点击编辑修正</p></div></div>
         </div>
       </div>
     </div>
