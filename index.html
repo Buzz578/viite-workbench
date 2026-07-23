@@ -234,12 +234,8 @@ input[type="file"]{display:none;}
       <span class="nav-badge rose">快捷</span></div>
     <div class="nav-item" data-page="mapping">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>物料映射</div>
-    <div class="nav-item" data-page="parse">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>快速解析
-      <span class="nav-badge rose">新</span></div>
     <div class="nav-item" data-page="smartparse">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>智能解析
-      <span class="nav-badge red">AI</span></div>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>智能解析</div>
     <div class="nav-item" data-page="feed">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>数据投喂
       <span class="nav-badge red">新</span></div>
@@ -300,49 +296,24 @@ input[type="file"]{display:none;}
       </div>
     </div>
 
-    <div class="page" id="page-parse">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
-        <div class="panel"><div class="panel-header"><h3>粘贴微信物料信息</h3></div>
-          <div style="padding:20px">
-            <div class="form-group"><label>选择客户（可选，方便后续归类）</label><select id="parse-customer"><option value="">暂不指定</option></select></div>
-            <div class="form-group"><label>从微信复制物料列表粘贴到这里</label>
-              <textarea class="import-textarea" id="parse-raw" placeholder="直接从微信聊天复制多行物料信息粘贴到这里&#10;&#10;支持格式：&#10;3101400880701 RES-SMD,100KQ,±5%,1206,1/4W,HF&#10;3101400880702 CAP-SMD,1uF,±10%,25V,0603,X7R,HF&#10;3101400880703 贴片电阻 RES-SMD,2.2Ω,±1%,0402,1/16W"></textarea></div>
-            <button class="btn btn-rose" onclick="parseWechatText()" style="width:100%;justify-content:center">解析为表格</button>
-          </div></div>
-        <div class="panel"><div class="panel-header"><h3>解析结果</h3>
-          <div style="display:flex;gap:6px">
-            <button class="btn btn-outline btn-sm" id="btn-copy-table" onclick="copyTableToClipboard()" style="display:none">复制表格</button>
-            <button class="btn btn-outline btn-sm" id="btn-copy-tsv" onclick="copyTSVToClipboard()" style="display:none">复制TSV(贴Excel)</button>
-            <button class="btn btn-rose btn-sm" id="btn-save-mappings" onclick="saveParsedAsMappings()" style="display:none">保存为映射</button>
-          </div></div>
-          <div style="padding:20px;overflow:auto" id="parse-result-area">
-            <div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg><p>在左侧粘贴微信物料信息</p><p style="font-size:12px;margin-top:4px;color:var(--text-muted)">支持一次粘贴几十行，自动拆分为表格</p></div></div>
-        </div>
-      </div>
-    </div>
-
     <div class="page" id="page-smartparse">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
         <div class="panel"><div class="panel-header"><h3>上传图片或粘贴文本</h3></div>
           <div style="padding:20px">
             <div class="form-group"><label>选择客户（可选）</label><select id="sparse-customer"><option value="">暂不指定</option></select></div>
-            <div class="form-group"><label>列模板</label>
-              <div class="template-picker" id="template-picker"></div>
-              <div class="col-check-list" id="col-check-list" style="display:none"></div>
-              <button class="btn btn-outline btn-sm" onclick="showTemplateManager()" style="margin-top:6px">管理模板</button></div>
             <label class="smart-upload-zone" id="smart-upload-zone">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
               <p>点击上传截图/图片，或拖拽到此处</p>
-              <p class="hint">支持 PNG、JPG。OCR 解析后可在右侧逐格校验修正</p>
+              <p class="hint">支持 PNG、JPG。OCR 识别后可在右侧逐格校验修正</p>
               <input type="file" id="sparse-image" accept="image/*" onchange="handleSmartParseImage(this)" style="display:none">
             </label>
-            <div style="text-align:center;color:var(--text-muted);font-size:12px;margin:10px 0">— 或者粘贴文本 —</div>
+            <div style="text-align:center;color:var(--text-muted);font-size:12px;margin:12px 0">— 或者粘贴文本 —</div>
             <div class="form-group"><label>粘贴物料文本</label>
-              <textarea class="import-textarea" id="sparse-text" placeholder="3101400880701 RES-SMD,100KQ,±5%,1206,1/4W,HF&#10;3101400880702 CAP-SMD,1uF,±10%,25V,0603,X7R,HF" style="min-height:120px"></textarea></div>
+              <textarea class="import-textarea" id="sparse-text" placeholder="直接从微信复制多行物料信息粘贴到这里&#10;&#10;示例格式：&#10;3101400880701 RES-SMD,100KQ,±5%,1206,1/4W,HF&#10;3101400880702 CAP-SMD,1uF,±10%,25V,0603,X7R,HF" style="min-height:120px"></textarea></div>
             <div id="ocr-progress-area"></div>
             <button class="btn btn-rose" onclick="executeSmartParse()" style="width:100%;justify-content:center">开始解析</button>
           </div></div>
-        <div class="panel"><div class="panel-header"><h3>解析结果（可逐格编辑校验）</h3>
+        <div class="panel"><div class="panel-header"><h3>解析结果 · 逐格校验修正</h3>
           <div style="display:flex;gap:6px">
             <button class="btn btn-outline btn-sm" id="btn-sp-export-tsv" onclick="smartExportTSV()" style="display:none">导出TSV</button>
             <button class="btn btn-outline btn-sm" id="btn-sp-export-html" onclick="smartExportHTML()" style="display:none">复制表格</button>
@@ -350,7 +321,18 @@ input[type="file"]{display:none;}
             <button class="btn btn-rose btn-sm" id="btn-sp-create-order" onclick="smartCreateOrder()" style="display:none">生成订单</button>
           </div></div>
           <div style="padding:20px;overflow:auto" id="sparse-result-area">
-            <div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/></svg><p>上传图片或粘贴文本后开始解析</p><p style="font-size:12px;margin-top:4px;color:var(--text-muted)">OCR 低置信度字符会用颜色标注，点击单元格可修正</p></div></div>
+            <div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/></svg><p>上传图片或粘贴文本后开始解析</p><p style="font-size:12px;margin-top:4px;color:var(--text-muted)">解析结果展示为表格，每格可直接点击编辑修正</p></div></div>
+        </div>
+      </div>
+      <div class="panel" style="margin-top:20px">
+        <div class="panel-header"><h3>列设置 · 选择需要提取的列</h3><button class="btn btn-outline btn-sm" onclick="resetColumnsToDefault()">恢复默认</button></div>
+        <div style="padding:16px 20px">
+          <div style="font-size:12px;color:var(--text-secondary);margin-bottom:10px">勾选需要的列，或输入自定义列名后按回车添加。列的顺序即表格从左到右的顺序。</div>
+          <div class="col-check-list" id="sparse-col-list"></div>
+          <div style="display:flex;gap:8px;align-items:center;margin-top:10px">
+            <input type="text" id="sparse-custom-col" placeholder="输入自定义列名，回车添加" style="flex:1;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-input);color:var(--text);font-size:13px" onkeydown="if(event.key==='Enter'){addCustomColumn();event.preventDefault();}">
+            <button class="btn btn-outline btn-sm" onclick="addCustomColumn()">添加</button>
+          </div>
         </div>
       </div>
     </div>
@@ -434,16 +416,6 @@ input[type="file"]{display:none;}
   </div>
 </div>
 
-<div class="modal-overlay" id="template-modal" style="display:none">
-  <div class="modal"><h2>管理列模板</h2>
-    <div style="margin-bottom:16px">
-      <div style="display:flex;gap:8px"><input type="text" id="new-tpl-name" placeholder="模板名称，如：完整规格清单" style="flex:1;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-input);color:var(--text);font-size:13px"><button class="btn btn-rose btn-sm" onclick="createTemplate()">创建模板</button></div>
-    </div>
-    <div id="tpl-list" style="max-height:300px;overflow-y:auto"></div>
-    <div class="modal-actions"><button class="btn btn-outline" onclick="closeModal('template-modal')">关闭</button></div>
-  </div>
-</div>
-
 <div class="modal-overlay" id="dispatch-modal" style="display:none">
   <div class="modal"><h2>安排发货</h2>
     <div class="form-group"><label>订单号</label><input type="text" id="dispatch-order-no" readonly style="background:var(--bg);color:var(--text-muted)"></div>
@@ -495,9 +467,9 @@ function switchPage(page){
   document.querySelectorAll('.page').forEach(function(e){e.classList.remove('active');});
   var n=document.querySelector('[data-page="'+page+'"]');if(n)n.classList.add('active');
   var p=document.getElementById('page-'+page);if(p)p.classList.add('active');
-  var t={dashboard:'工作看板',import:'订单导入',mapping:'物料映射',parse:'快速解析',smartparse:'智能解析',feed:'数据投喂',orders:'订单管理',customers:'客户管理',inventory:'库存管理',dispatch:'发货管理'};
+  var t={dashboard:'工作看板',import:'订单导入',mapping:'物料映射',smartparse:'智能解析',feed:'数据投喂',orders:'订单管理',customers:'客户管理',inventory:'库存管理',dispatch:'发货管理'};
   document.getElementById('page-title').textContent=t[page]||page;
-  if(page==='import')prepImportPage();if(page==='mapping')prepMappingPage();if(page==='parse')prepParsePage();if(page==='smartparse')prepSmartParsePage();if(page==='feed')renderFeed();
+  if(page==='import')prepImportPage();if(page==='mapping')prepMappingPage();if(page==='smartparse')prepSmartParsePage();if(page==='feed')renderFeed();
   renderAll();
 }
 
@@ -595,280 +567,124 @@ function renderMappings(){
   }).join('');
 }
 
-// ============ QUICK PARSE (WeChat Material List) ============
-var parsedRows=[];
-function prepParsePage(){
-  document.getElementById('parse-customer').innerHTML='<option value="">暂不指定</option>'+db.customers.map(function(c){return'<option value="'+c.id+'">'+c.name+'</option>';}).join('');
-}
-function parseWechatText(){
-  var raw=document.getElementById('parse-raw').value;if(!raw.trim()){showToast('请粘贴物料信息','warning');return;}
-  var lines=raw.split('\n').filter(function(l){return l.trim();});
-  parsedRows=[];
-  for(var i=0;i<lines.length;i++){
-    var line=lines[i].trim();
-    // Try to parse: [partNo] [description/rest...]
-    var partNo='',desc='',qty='1';
-    // Split by first space to separate part number
-    var spaceIdx=line.indexOf(' ');
-    if(spaceIdx>0){
-      partNo=line.substring(0,spaceIdx).trim();
-      desc=line.substring(spaceIdx+1).trim();
-    } else {
-      // No space - maybe just part number or tab delimited
-      var tabParts=line.split('\t');
-      if(tabParts.length>1){partNo=tabParts[0];desc=tabParts.slice(1).join(' ');}
-      else{partNo=line;desc='';}
-    }
-    // Try to detect quantity from end of line (e.g. "x50" or "×50" or " 50pcs")
-    var qtyMatch=desc.match(/[x×X]\s*(\d+)\s*(pcs|PCS|个)?\s*$/);
-    if(qtyMatch){qty=qtyMatch[1];desc=desc.replace(qtyMatch[0],'').trim();}
-    parsedRows.push({partNo:partNo,desc:desc,qty:qty});
-  }
-  renderParseTable();
-}
-function renderParseTable(){
-  var area=document.getElementById('parse-result-area');
-  if(!parsedRows.length){
-    area.innerHTML='<div class="empty-state"><p>没有解析到数据</p></div>';
-    document.getElementById('btn-copy-table').style.display='none';
-    document.getElementById('btn-copy-tsv').style.display='none';
-    document.getElementById('btn-save-mappings').style.display='none';
-    return;
-  }
-  document.getElementById('btn-copy-table').style.display='inline-flex';
-  document.getElementById('btn-copy-tsv').style.display='inline-flex';
-  document.getElementById('btn-save-mappings').style.display='inline-flex';
-  var html='<div style="font-size:12px;color:var(--text-secondary);margin-bottom:10px">共 '+parsedRows.length+' 行，点击单元格可编辑</div>';
-  html+='<table class="parse-table"><thead><tr><th class="row-num">#</th><th class="col-partno">客户料号</th><th class="col-desc">物料描述/规格</th><th class="col-qty">数量</th><th class="col-action"></th></tr></thead><tbody>';
-  for(var i=0;i<parsedRows.length;i++){
-    var r=parsedRows[i];
-    html+='<tr><td class="row-num">'+(i+1)+'</td>';
-    html+='<td><input value="'+escapeHtml(r.partNo)+'" data-row="'+i+'" data-field="partNo" onchange="updateParsedRow(this)" oninput="updateParsedRow(this)"></td>';
-    html+='<td><input value="'+escapeHtml(r.desc)+'" data-row="'+i+'" data-field="desc" onchange="updateParsedRow(this)" oninput="updateParsedRow(this)"></td>';
-    html+='<td><input value="'+escapeHtml(r.qty)+'" data-row="'+i+'" data-field="qty" onchange="updateParsedRow(this)" oninput="updateParsedRow(this)" style="text-align:center"></td>';
-    html+='<td class="col-action"><button class="btn btn-outline btn-sm" onclick="removeParsedRow('+i+')" style="padding:2px 6px;font-size:11px;color:var(--danger)">×</button></td></tr>';
-  }
-  html+='</tbody></table>';
-  area.innerHTML=html;
-}
-function updateParsedRow(input){
-  var i=parseInt(input.getAttribute('data-row'));
-  var field=input.getAttribute('data-field');
-  if(parsedRows[i])parsedRows[i][field]=input.value;
-}
-function removeParsedRow(i){
-  parsedRows.splice(i,1);renderParseTable();
-}
-function escapeHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function copyTableToClipboard(){
-  if(!parsedRows.length)return;
-  var html='<table border="1" cellpadding="4" cellspacing="0"><tr><th>#</th><th>客户料号</th><th>物料描述/规格</th><th>数量</th></tr>';
-  for(var i=0;i<parsedRows.length;i++){var r=parsedRows[i];html+='<tr><td>'+(i+1)+'</td><td>'+r.partNo+'</td><td>'+r.desc+'</td><td>'+r.qty+'</td></tr>';}
-  html+='</table>';
-  // Copy as HTML to clipboard
-  var blob=new Blob([html],{type:'text/html'});
-  var item=new ClipboardItem({'text/html':blob,'text/plain':new Blob([buildTSV()],{type:'text/plain'})});
-  navigator.clipboard.write([item]).then(function(){showToast('表格已复制，可直接粘贴到 Excel 或邮件');}).catch(function(){showToast('复制失败，请手动选择','error');});
-}
-function buildTSV(){
-  var lines=['客户料号\t物料描述/规格\t数量'];
-  for(var i=0;i<parsedRows.length;i++){var r=parsedRows[i];lines.push(r.partNo+'\t'+r.desc+'\t'+r.qty);}
-  return lines.join('\n');
-}
-function copyTSVToClipboard(){
-  if(!parsedRows.length)return;
-  navigator.clipboard.writeText(buildTSV()).then(function(){showToast('TSV已复制，可直接粘贴到Excel');});
-}
-function saveParsedAsMappings(){
-  var custId=document.getElementById('parse-customer').value;if(!custId){showToast('请先选择客户','warning');return;}
-  var added=0,skipped=0;
-  for(var i=0;i<parsedRows.length;i++){
-    var r=parsedRows[i];if(!r.partNo)continue;
-    var exists=db.mappings.filter(function(m){return m.customerId===custId&&m.customerPartNo===r.partNo;})[0];
-    if(exists){skipped++;continue;}
-    db.mappings.push({id:'M'+String(db.mappings.length+1).padStart(3,'0'),customerId:custId,customerPartNo:r.partNo,customerDesc:r.desc,keywords:'',productId:'',internalRefNo:'',note:''});
-    added++;
-  }
-  saveData(db);renderAll();
-  showToast('已添加 '+added+' 条映射'+(skipped>0?'，跳过 '+skipped+' 条重复':''));
-}
-
-// ============ SMART PARSE (Image OCR + Column Templates) ============
-var columnTemplates=[];
-var defaultTemplates=[
-  {id:'tpl_std',name:'标准物料清单',system:true,cols:[{key:'partNo',label:'物料编码',required:true},{key:'desc',label:'物料描述',required:true},{key:'qty',label:'需求数量',required:false}]},
-  {id:'tpl_full',name:'完整规格清单',system:true,cols:[{key:'partNo',label:'物料编码',required:true},{key:'desc',label:'物料描述',required:true},{key:'spec',label:'规格参数',required:false},{key:'brand',label:'品牌',required:false},{key:'qty',label:'需求数量',required:false}]},
-  {id:'tpl_simple',name:'简要清单',system:true,cols:[{key:'partNo',label:'物料编码',required:true},{key:'desc',label:'物料描述',required:true}]}
+// ============ SMART PARSE (Image OCR + Custom Column Selection) ============
+var SMART_COL_KEY='viite_smart_cols';
+var sparseDefaultCols=[
+  {key:'partNo',label:'物料编码',on:true},
+  {key:'desc',label:'物料描述',on:true},
+  {key:'spec',label:'规格参数',on:false},
+  {key:'brand',label:'品牌',on:false},
+  {key:'qty',label:'需求数量',on:true},
+  {key:'refNo',label:'内部参考号',on:false},
+  {key:'note',label:'备注',on:false}
 ];
-var selectedTemplateId='tpl_std';
+var sparseActiveColDefs=[]; // {key,label,on} - current column config
 var sparseParsedRows=[];
-var sparseActiveColumns=[];
+var smartParseImageText='';
 
-function loadTemplates(){
-  var raw=localStorage.getItem('viite_col_templates');
-  if(raw){try{columnTemplates=JSON.parse(raw);}catch(e){columnTemplates=[];}}
-  if(!columnTemplates.length){columnTemplates=JSON.parse(JSON.stringify(defaultTemplates));saveTemplates();}
+function loadSmartCols(){
+  var raw=localStorage.getItem(SMART_COL_KEY);
+  if(raw){try{sparseActiveColDefs=JSON.parse(raw);}catch(e){sparseActiveColDefs=[];}}
+  if(!sparseActiveColDefs.length){sparseActiveColDefs=JSON.parse(JSON.stringify(sparseDefaultCols));saveSmartCols();}
 }
-function saveTemplates(){localStorage.setItem('viite_col_templates',JSON.stringify(columnTemplates));}
-loadTemplates();
+function saveSmartCols(){localStorage.setItem(SMART_COL_KEY,JSON.stringify(sparseActiveColDefs));}
+function resetColumnsToDefault(){sparseActiveColDefs=JSON.parse(JSON.stringify(sparseDefaultCols));saveSmartCols();renderColPicker();showToast('列设置已恢复默认');}
+loadSmartCols();
 
-function getTemplateById(id){for(var i=0;i<columnTemplates.length;i++){if(columnTemplates[i].id===id)return columnTemplates[i];}return columnTemplates[0];}
 function prepSmartParsePage(){
   document.getElementById('sparse-customer').innerHTML='<option value="">暂不指定</option>'+db.customers.map(function(c){return'<option value="'+c.id+'">'+c.name+'</option>';}).join('');
-  renderTemplatePicker();
-}
-function renderTemplatePicker(){
-  var picker=document.getElementById('template-picker');
-  var html='';
-  for(var i=0;i<columnTemplates.length;i++){
-    var t=columnTemplates[i];
-    var active=t.id===selectedTemplateId?' active':'';
-    var cls=t.system?'':' custom';
-    html+='<div class="template-chip'+active+cls+'" onclick="selectTemplate(\''+t.id+'\')">'+t.name+(t.system?'':'<span class="chip-del" onclick="event.stopPropagation();deleteTemplate(\''+t.id+'\')">×</span>')+'</div>';
-  }
-  html+='<span class="template-add" onclick="showTemplateManager()" title="管理模板">+</span>';
-  picker.innerHTML=html;
-  renderColCheckList();
-}
-function selectTemplate(id){selectedTemplateId=id;renderTemplatePicker();}
-function renderColCheckList(){
-  var t=getTemplateById(selectedTemplateId);if(!t)return;
-  sparseActiveColumns=t.cols.slice();
-  var list=document.getElementById('col-check-list');
-  list.style.display='flex';
-  var html='';
-  for(var i=0;i<t.cols.length;i++){
-    var c=t.cols[i];
-    html+='<label class="col-check-item checked" onclick="this.classList.toggle(\'checked\');refreshActiveColumns()"><input type="checkbox" checked>'+(c.required?'<b>'+c.label+'</b> <span style="font-size:10px;color:var(--text-muted)">必须</span>':c.label)+'</label>';
-  }
-  list.innerHTML=html;
-}
-function refreshActiveColumns(){
-  var t=getTemplateById(selectedTemplateId);if(!t)return;
-  var items=document.querySelectorAll('#col-check-list .col-check-item');
-  var active=[];
-  for(var i=0;i<items.length;i++){
-    if(items[i].classList.contains('checked')&&t.cols[i])active.push(t.cols[i]);
-  }
-  // Ensure required columns are always included
-  for(var j=0;j<t.cols.length;j++){if(t.cols[j].required&&active.indexOf(t.cols[j])<0)active.push(t.cols[j]);}
-  sparseActiveColumns=active;
-}
-function showTemplateManager(){
-  document.getElementById('new-tpl-name').value='';
-  var list=document.getElementById('tpl-list');
-  var html='<div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">系统模板（不可删除）</div>';
-  for(var i=0;i<columnTemplates.length;i++){
-    var t=columnTemplates[i];
-    var cls=t.system?'':' custom';
-    var delBtn=t.system?'':'<button class="btn btn-outline btn-sm" style="color:var(--danger);padding:2px 8px;font-size:11px" onclick="deleteTemplate(\''+t.id+'\');showTemplateManager()">删除</button>';
-    html+='<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border:1px solid var(--border-light);border-radius:var(--radius-sm);margin-bottom:6px;background:var(--bg-card)"><div><div style="font-weight:600;font-size:13px">'+t.name+'</div><div style="font-size:11px;color:var(--text-muted)">'+t.cols.map(function(c){return c.label;}).join(' / ')+'</div></div>'+delBtn+'</div>';
-  }
-  list.innerHTML=html;
-  openModal('template-modal');
-}
-function createTemplate(){
-  var name=document.getElementById('new-tpl-name').value.trim();if(!name){showToast('请输入模板名称','warning');return;}
-  // Prompt for columns
-  var colsInput=prompt('请输入列定义，格式：列名1,列名2,列名3（逗号分隔）\n\n列名示例：物料编码,物料描述,需求数量','物料编码,物料描述,需求数量');
-  if(!colsInput)return;
-  var colNames=colsInput.split(',').map(function(s){return s.trim();}).filter(function(s){return s;});
-  var cols=[];
-  for(var i=0;i<colNames.length;i++){
-    var key='col_'+i;cols.push({key:key,label:colNames[i],required:i===0});
-  }
-  columnTemplates.push({id:'tpl_custom_'+Date.now(),name:name,system:false,cols:cols});
-  saveTemplates();selectedTemplateId=columnTemplates[columnTemplates.length-1].id;
-  closeModal('template-modal');renderTemplatePicker();showToast('模板「'+name+'」已创建');
-}
-function deleteTemplate(id){
-  var t=getTemplateById(id);if(!t||t.system)return;
-  if(!confirm('确定删除模板「'+t.name+'」吗？'))return;
-  columnTemplates=columnTemplates.filter(function(x){return x.id!==id;});
-  if(selectedTemplateId===id)selectedTemplateId='tpl_std';
-  saveTemplates();renderTemplatePicker();showToast('模板已删除');
+  renderColPicker();
 }
 
-var smartParseImageText='';
+function renderColPicker(){
+  var list=document.getElementById('sparse-col-list');
+  var html='';
+  for(var i=0;i<sparseActiveColDefs.length;i++){
+    var c=sparseActiveColDefs[i];
+    var checked=c.on?' checked':'';
+    html+='<label class="col-check-item'+checked+'" onclick="toggleCol('+i+')"><input type="checkbox"'+checked+'> '+c.label+'</label>';
+  }
+  list.innerHTML=html;
+}
+
+function toggleCol(i){
+  sparseActiveColDefs[i].on=!sparseActiveColDefs[i].on;saveSmartCols();renderColPicker();
+}
+
+function addCustomColumn(){
+  var input=document.getElementById('sparse-custom-col');
+  var name=input.value.trim();if(!name)return;
+  var key='col_'+Date.now();
+  sparseActiveColDefs.push({key:key,label:name,on:true});saveSmartCols();renderColPicker();
+  input.value='';showToast('已添加列：'+name);
+}
+
+function getActiveCols(){
+  return sparseActiveColDefs.filter(function(c){return c.on;});
+}
+
 function handleSmartParseImage(input){
   var file=input.files[0];if(!file)return;
   if(file.size>10*1024*1024){showToast('图片不能超过10MB','warning');return;}
   var zone=document.getElementById('smart-upload-zone');
-  zone.querySelector('p:first-child').textContent='正在OCR识别: '+file.name+'...';
+  zone.querySelector('p:first-child').textContent='正在 OCR 识别: '+file.name+'...';
   zone.style.borderColor='var(--rose)';
   var progArea=document.getElementById('ocr-progress-area');
-  progArea.innerHTML='<div class="ocr-progress"><div style="font-size:13px;color:var(--rose-dark);font-weight:600">OCR 文字识别中...</div><div class="prog-bar"><div class="prog-fill" id="ocr-prog-fill" style="width:0%"></div></div><div style="font-size:11px;color:var(--text-muted);margin-top:6px" id="ocr-prog-text">加载引擎...</div></div>';
-
-  if(typeof Tesseract==='undefined'){progArea.innerHTML='<div style="color:var(--danger);font-size:13px;padding:12px">Tesseract.js 未加载，请刷新页面后重试。或将图片转为文本后粘贴到下方文本框。</div>';zone.querySelector('p:first-child').textContent='点击上传截图/图片，或拖拽到此处';zone.style.borderColor='';return;}
-
+  progArea.innerHTML='<div class="ocr-progress"><div style="font-size:13px;color:var(--rose-dark);font-weight:600">OCR 文字识别中...</div><div class="prog-bar"><div class="prog-fill" id="ocr-prog-fill" style="width:0%"></div></div><div style="font-size:11px;color:var(--text-muted);margin-top:6px" id="ocr-prog-text">加载识别引擎...</div></div>';
+  if(typeof Tesseract==='undefined'){
+    progArea.innerHTML='<div style="color:var(--danger);font-size:13px;padding:12px">Tesseract.js 未加载。请刷新页面重试，或将图片文字手动复制后粘贴到下方文本框。</div>';
+    zone.querySelector('p:first-child').textContent='点击上传截图/图片，或拖拽到此处';zone.style.borderColor='';return;
+  }
   Tesseract.recognize(file,'chi_sim+eng',{logger:function(m){
-    if(m.status==='recognizing text'){
-      var pct=Math.round(m.progress*100);
-      var fill=document.getElementById('ocr-prog-fill');if(fill)fill.style.width=pct+'%';
-      var txt=document.getElementById('ocr-prog-text');if(txt)txt.textContent='识别中... '+pct+'%';
-    }else{var txt2=document.getElementById('ocr-prog-text');if(txt2)txt2.textContent=m.status;}
+    if(m.status==='recognizing text'){var pct=Math.round(m.progress*100);var f=document.getElementById('ocr-prog-fill');if(f)f.style.width=pct+'%';var t=document.getElementById('ocr-prog-text');if(t)t.textContent='识别中... '+pct+'%';}
+    else{var t2=document.getElementById('ocr-prog-text');if(t2)t2.textContent=m.status;}
   }}).then(function(result){
     smartParseImageText=result.data.text;
-    progArea.innerHTML='<div style="font-size:12px;color:var(--success);padding:8px 0;font-weight:600">OCR 识别完成。识别到 '+smartParseImageText.split('\\n').filter(function(l){return l.trim();}).length+' 行文本</div>';
+    progArea.innerHTML='<div style="font-size:12px;color:var(--success);padding:8px 0;font-weight:600">OCR 识别完成。共识别 '+smartParseImageText.split('\\n').filter(function(l){return l.trim();}).length+' 行</div>';
     document.getElementById('sparse-text').value=smartParseImageText;
-    zone.querySelector('p:first-child').textContent='已加载: '+file.name;
-    zone.style.borderColor='var(--success)';
-    // Auto-parse
+    zone.querySelector('p:first-child').textContent='已加载: '+file.name;zone.style.borderColor='var(--success)';
     executeSmartParse();
   }).catch(function(err){
-    progArea.innerHTML='<div style="color:var(--danger);font-size:13px;padding:12px">OCR 识别失败: '+err.message+'<br><span style="font-size:11px">请将图片中的文字手动复制后粘贴到下方文本框</span></div>';
+    progArea.innerHTML='<div style="color:var(--danger);font-size:13px;padding:12px">OCR 失败: '+err.message+'<br><span style="font-size:11px">请将图片文字复制后粘贴到下方文本框</span></div>';
     zone.querySelector('p:first-child').textContent='点击上传截图/图片，或拖拽到此处';zone.style.borderColor='';
   });
-}
-
-function parseLineByTemplate(line,template){
-  if(!line.trim())return null;
-  var parts=line.trim().split(/\s+/);
-  var row={};
-  var activeCols=sparseActiveColumns.length?sparseActiveColumns:template.cols;
-  // Assign columns based on position
-  for(var i=0;i<activeCols.length;i++){
-    var c=activeCols[i];
-    if(i===0){row[c.key]=parts[0]||'';} // First column = part number
-    else if(i===activeCols.length-1 && c.key==='qty'){row[c.key]='1';} // Last column = quantity if present
-    else{row[c.key]=i<parts.length?parts[i]:'';}
-  }
-  // For 2-column templates: [partNo] [everything else = desc]
-  if(activeCols.length===2){
-    row[activeCols[0].key]=parts[0]||'';
-    row[activeCols[1].key]=parts.slice(1).join(' ')||'';
-  }
-  // For 3+ columns: split intelligently
-  if(activeCols.length>=3){
-    row[activeCols[0].key]=parts[0]||'';
-    if(activeCols.length===3){
-      row[activeCols[1].key]=parts.length>2?parts.slice(1,-1).join(' '):(parts[1]||'');
-      row[activeCols[2].key]=parts.length>1?parts[parts.length-1]:'1';
-    }else{
-      for(var j=1;j<activeCols.length&&j<parts.length;j++){row[activeCols[j].key]=parts[j]||'';}
-    }
-  }
-  // Try detect qty from end of line
-  var rawLine=line.trim();
-  var qtyMatch=rawLine.match(/[x×X]\s*(\d+)\s*(?:pcs|PCS|个)?\s*$/);
-  if(qtyMatch){
-    for(var k=0;k<activeCols.length;k++){if(activeCols[k].key==='qty'){row.qty=qtyMatch[1];break;}}
-  }
-  return row;
 }
 
 function executeSmartParse(){
   var text=document.getElementById('sparse-text').value;
   if(!text.trim()&&!smartParseImageText){showToast('请先上传图片或粘贴文本','warning');return;}
   if(!text.trim())text=smartParseImageText;
-  var t=getTemplateById(selectedTemplateId);if(!t)return;
-  refreshActiveColumns();
-  var activeCols=sparseActiveColumns.length?sparseActiveColumns:t.cols;
+  var activeCols=getActiveCols();
+  if(!activeCols.length){showToast('请至少勾选一个列','warning');return;}
   var lines=text.split('\n').filter(function(l){return l.trim();});
   sparseParsedRows=[];
-  for(var i=0;i<lines.length;i++){
-    var row=parseLineByTemplate(lines[i],t);
-    if(row)sparseParsedRows.push(row);
+  for(var li=0;li<lines.length;li++){
+    var line=lines[li].trim();
+    var parts=line.split(/\s+/);
+    var row={};
+    for(var ci=0;ci<activeCols.length;ci++){
+      var col=activeCols[ci];
+      if(ci===0){row[col.key]=parts[0]||'';}
+      else if(ci<parts.length){row[col.key]=parts[ci]||'';}
+      else{row[col.key]='';}
+    }
+    // If only 2 cols and >2 parts: [partNo] [rest = desc]
+    if(activeCols.length===2&&parts.length>2){
+      row[activeCols[0].key]=parts[0];
+      row[activeCols[1].key]=parts.slice(1).join(' ');
+    }
+    // Detect qty at end: x50, ×50, 50pcs
+    var qtyMatch=line.match(/[x×X]\\s*(\\d+)\\s*(?:pcs|PCS|个)?\\s*$/);
+    if(qtyMatch){
+      for(var qk=0;qk<activeCols.length;qk++){if(activeCols[qk].key==='qty'){row.qty=qtyMatch[1];break;}}
+    }else{
+      // Check if last column looks like a number
+      var lastVal=row[activeCols[activeCols.length-1].key];
+      if(/^\d+$/.test(lastVal)){
+        for(var qk2=0;qk2<activeCols.length;qk2++){if(activeCols[qk2].key==='qty'){row.qty=lastVal;break;}}
+      }
+    }
+    sparseParsedRows.push(row);
   }
   renderSmartParseTable(activeCols);
 }
@@ -877,15 +693,13 @@ function renderSmartParseTable(activeCols){
   var area=document.getElementById('sparse-result-area');
   var btns=['btn-sp-export-tsv','btn-sp-export-html','btn-sp-save-map','btn-sp-create-order'];
   if(!sparseParsedRows.length){
-    area.innerHTML='<div class="empty-state"><p>没有解析到数据</p><p style="font-size:12px;margin-top:4px">请检查文本格式是否正确</p></div>';
-    for(var b=0;b<btns.length;b++)document.getElementById(btns[b]).style.display='none';
-    return;
+    area.innerHTML='<div class="empty-state"><p>没有解析到数据</p><p style="font-size:12px;margin-top:4px">请检查文本格式，确保每行以空格分隔</p></div>';
+    for(var b=0;b<btns.length;b++)document.getElementById(btns[b]).style.display='none';return;
   }
   for(var b2=0;b2<btns.length;b2++)document.getElementById(btns[b2]).style.display='inline-flex';
-
-  var html='<div style="font-size:12px;color:var(--text-secondary);margin-bottom:12px">共 '+sparseParsedRows.length+' 行 · 点击单元格可直接编辑修正 · 导出前请逐行核对</div>';
+  var html='<div style="font-size:12px;color:var(--text-secondary);margin-bottom:12px">共 '+sparseParsedRows.length+' 行 · <b>点击单元格可直接编辑修正</b> · 导出前请逐行核对确保100%准确</div>';
   html+='<table class="parse-table"><thead><tr><th class="row-num">#</th>';
-  for(var c=0;c<activeCols.length;c++){html+='<th>'+(activeCols[c].required?'<b>'+activeCols[c].label+'</b>':activeCols[c].label)+'</th>';}
+  for(var c=0;c<activeCols.length;c++)html+='<th>'+activeCols[c].label+'</th>';
   html+='<th class="col-action"></th></tr></thead><tbody>';
   for(var i=0;i<sparseParsedRows.length;i++){
     var r=sparseParsedRows[i];
@@ -896,71 +710,64 @@ function renderSmartParseTable(activeCols){
     }
     html+='<td class="col-action"><button class="btn btn-outline btn-sm" onclick="removeSparseRow('+i+')" style="padding:2px 6px;font-size:11px;color:var(--danger)">×</button></td></tr>';
   }
-  html+='</tbody></table>';
-  area.innerHTML=html;
+  html+='</tbody></table>';area.innerHTML=html;
 }
+
 function updateSparseRow(input){
   var i=parseInt(input.getAttribute('data-row'));
   var col=input.getAttribute('data-col');
   if(sparseParsedRows[i])sparseParsedRows[i][col]=input.value;
 }
-function removeSparseRow(i){sparseParsedRows.splice(i,1);refreshActiveColumns();var t=getTemplateById(selectedTemplateId);renderSmartParseTable(sparseActiveColumns.length?sparseActiveColumns:t.cols);}
+
+function removeSparseRow(i){sparseParsedRows.splice(i,1);renderSmartParseTable(getActiveCols());}
 
 function smartExportTSV(){
   if(!sparseParsedRows.length)return;
-  var t=getTemplateById(selectedTemplateId);refreshActiveColumns();
-  var cols=sparseActiveColumns.length?sparseActiveColumns:t.cols;
+  var cols=getActiveCols();
   var lines=[cols.map(function(c){return c.label;}).join('\t')];
-  for(var i=0;i<sparseParsedRows.length;i++){var vals=cols.map(function(c){return sparseParsedRows[i][c.key]||'';});lines.push(vals.join('\t'));}
+  for(var i=0;i<sparseParsedRows.length;i++)lines.push(cols.map(function(c){return sparseParsedRows[i][c.key]||'';}).join('\t'));
   navigator.clipboard.writeText(lines.join('\n')).then(function(){showToast('TSV已复制，可直接粘贴到Excel');});
 }
+
 function smartExportHTML(){
   if(!sparseParsedRows.length)return;
-  var t=getTemplateById(selectedTemplateId);refreshActiveColumns();
-  var cols=sparseActiveColumns.length?sparseActiveColumns:t.cols;
+  var cols=getActiveCols();
   var html='<table border="1" cellpadding="4" cellspacing="0"><tr>'+cols.map(function(c){return'<th>'+c.label+'</th>';}).join('')+'</tr>';
-  for(var i=0;i<sparseParsedRows.length;i++){html+='<tr>'+cols.map(function(c){return'<td>'+(sparseParsedRows[i][c.key]||'')+'</td>';}).join('')+'</tr>';}
+  for(var i=0;i<sparseParsedRows.length;i++)html+='<tr>'+cols.map(function(c){return'<td>'+(sparseParsedRows[i][c.key]||'')+'</td>';}).join('')+'</tr>';
   html+='</table>';
+  var tsv=cols.map(function(c){return c.label;}).join('\t')+'\n'+sparseParsedRows.map(function(r){return cols.map(function(c){return r[c.key]||'';}).join('\t');}).join('\n');
   var blob=new Blob([html],{type:'text/html'});
-  var plainText=cols.map(function(c){return c.label;}).join('\t')+'\n'+sparseParsedRows.map(function(r){return cols.map(function(c){return r[c.key]||'';}).join('\t');}).join('\n');
-  var item=new ClipboardItem({'text/html':blob,'text/plain':new Blob([plainText],{type:'text/plain'})});
-  navigator.clipboard.write([item]).then(function(){showToast('表格已复制，可粘贴到 Excel 或邮件');}).catch(function(){showToast('复制失败','error');});
+  navigator.clipboard.write([new ClipboardItem({'text/html':blob,'text/plain':new Blob([tsv],{type:'text/plain'})})]).then(function(){showToast('表格已复制，可粘贴到Excel或邮件');}).catch(function(){showToast('复制失败','error');});
 }
+
 function smartSaveAsMappings(){
   var custId=document.getElementById('sparse-customer').value;if(!custId){showToast('请先选择客户','warning');return;}
   var added=0,skipped=0;
   for(var i=0;i<sparseParsedRows.length;i++){
-    var r=sparseParsedRows[i];var partNo=r.partNo||r.col_0||'';if(!partNo)continue;
-    var desc=r.desc||r.col_1||'';
+    var r=sparseParsedRows[i];var partNo=r.partNo||'';if(!partNo)continue;
+    var desc=r.desc||'';
     var exists=db.mappings.filter(function(m){return m.customerId===custId&&m.customerPartNo===partNo;})[0];
     if(exists){skipped++;continue;}
-    db.mappings.push({id:'M'+String(db.mappings.length+1).padStart(3,'0'),customerId:custId,customerPartNo:partNo,customerDesc:desc,keywords:'',productId:'',internalRefNo:'',note:''});
-    added++;
+    db.mappings.push({id:'M'+String(db.mappings.length+1).padStart(3,'0'),customerId:custId,customerPartNo:partNo,customerDesc:desc,keywords:'',productId:'',internalRefNo:'',note:''});added++;
   }
   saveData(db);renderAll();showToast('已添加 '+added+' 条映射'+(skipped>0?'，跳过 '+skipped+' 条重复':''));
 }
+
 function smartCreateOrder(){
   var custId=document.getElementById('sparse-customer').value;
   var cust=db.customers.filter(function(c){return c.id===custId;})[0];
   if(!cust){showToast('请先选择客户','warning');return;}
-  // Try to match each row to existing products
   var products=[],partNos=[];
   for(var i=0;i<sparseParsedRows.length;i++){
-    var r=sparseParsedRows[i];var partNo=r.partNo||r.col_0||'';
-    var qty=parseInt(r.qty||r.col_2||'1')||1;
-    // Try exact mapping match
+    var r=sparseParsedRows[i];var partNo=r.partNo||'';var qty=parseInt(r.qty||'1')||1;
     var map=db.mappings.filter(function(m){return m.customerId===custId&&m.customerPartNo===partNo;})[0];
-    if(map){
-      var prod=db.products.filter(function(p){return p.id===map.productId;})[0];
-      if(prod){products.push({productId:prod.id,name:prod.name,spec:prod.spec||'',price:prod.price,qty:qty});partNos.push(partNo);}
-    }
+    if(map){var prod=db.products.filter(function(p){return p.id===map.productId;})[0];if(prod){products.push({productId:prod.id,name:prod.name,spec:prod.spec||'',price:prod.price,qty:qty});partNos.push(partNo);}}
   }
-  if(!products.length){showToast('没有找到匹配的产品。请先在「物料映射」中添加对应关系','warning');return;}
+  if(!products.length){showToast('没有匹配的产品。请先建立物料映射','warning');return;}
   var total=0;for(var j=0;j<products.length;j++)total+=products[j].price*products[j].qty;
   var orderNo=genOrderNo();
   db.orders.push({id:orderNo,customerId:custId,customerName:cust.name,products:products,total:total,status:'needs_approval',approval:'pending',date:(new Date()).toISOString().slice(0,10),remark:'',tracking:'',carrier:'',customerPartNos:partNos});
-  saveData(db);renderAll();showToast('订单 '+orderNo+' 已生成，状态：待审批');
-  switchPage('orders');
+  saveData(db);renderAll();showToast('订单 '+orderNo+' 已生成，待审批');switchPage('orders');
 }
 
 // ============ DATA FEED ============
