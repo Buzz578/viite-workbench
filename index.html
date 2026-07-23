@@ -627,43 +627,46 @@ function handleSmartParseImages(input){
   var inpEl=document.getElementById('sparse-image');
   var progArea=document.getElementById('ocr-progress-area');
   if(typeof Tesseract==='undefined'){
-    progArea.innerHTML='<div style="color:var(--danger);font-size:13px;padding:12px">Tesseract.js 未加载。请刷新页面重试，或粘贴文本到下方。</div>';return;
+    progArea.innerHTML='<div style="color:var(--danger);font-size:13px;padding:12px">Tesseract.js 未加载。请刷新页面重试。</div>';return;
   }
   smartParseImageText='';
   var total=files.length,completed=0;
   inpEl.style.borderColor='var(--rose)';
-  progArea.innerHTML='<div class="ocr-progress"><div style="font-size:13px;color:var(--rose-dark);font-weight:600">OCR 识别中 ('+completed+'/'+total+')</div><div class="prog-bar"><div class="prog-fill" id="ocr-prog-fill" style="width:0%"></div></div><div style="font-size:11px;color:var(--text-muted);margin-top:6px" id="ocr-prog-text">准备中...</div></div>';
+  progArea.innerHTML='<div class="ocr-progress"><div style="font-size:13px;color:var(--rose-dark);font-weight:600">OCR 识别中 (0/'+total+')</div><div class="prog-bar"><div class="prog-fill" id="ocr-prog-fill" style="width:0%"></div></div><div style="font-size:11px;color:var(--text-muted);margin-top:6px" id="ocr-prog-text">初始化引擎...</div></div>';
 
-  function processNext(index){
-    if(index>=total){
-      // All done
-      var lineCount=smartParseImageText.split('\n').filter(function(l){return l.trim();}).length;
-      progArea.innerHTML='<div style="font-size:12px;color:var(--success);padding:8px 0;font-weight:600">全部完成！'+total+' 张图片，共识别 '+lineCount+' 行</div>';
-      document.getElementById('sparse-text').value=smartParseImageText;
-      inpEl.style.borderColor='var(--success)';
-      executeSmartParse();return;
-    }
-    var file=files[index];
-    if(file.size>15*1024*1024){showToast(file.name+' 超过15MB，已跳过','warning');completed++;processNext(index+1);return;}
-    var txt=document.getElementById('ocr-prog-text');if(txt)txt.textContent='第 '+(index+1)+'/'+total+' 张: '+file.name;
-    Tesseract.recognize(file,'chi_sim+eng',{logger:function(m){
-      if(m.status==='recognizing text'){
-        var pct=Math.round(((completed+m.progress)/total)*100);
-        var fill=document.getElementById('ocr-prog-fill');if(fill)fill.style.width=pct+'%';
+  Tesseract.createWorker('chi_sim+eng',1,{workerPath:'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/worker.min.js'}).then(function(worker){
+    var txtEl=document.getElementById('ocr-prog-text');if(txtEl)txtEl.textContent='引擎就绪，开始识别...';
+    function processNext(index){
+      if(index>=total){
+        worker.terminate();
+        var lineCount=smartParseImageText.split('\n').filter(function(l){return l.trim();}).length;
+        progArea.innerHTML='<div style="font-size:12px;color:var(--success);padding:8px 0;font-weight:600">全部完成！'+total+' 张图片，共识别 '+lineCount+' 行</div>';
+        document.getElementById('sparse-text').value=smartParseImageText;
+        inpEl.style.borderColor='var(--success)';executeSmartParse();return;
       }
-    }}).then(function(result){
-      if(smartParseImageText)smartParseImageText+='\n';
-      smartParseImageText+=result.data.text;
-      completed++;
+      var file=files[index];
+      if(file.size>15*1024*1024){showToast(file.name+' 超过15MB，已跳过','warning');completed++;processNext(index+1);return;}
+      if(txtEl)txtEl.textContent='第 '+(index+1)+'/'+total+' 张: '+file.name;
       var hdr=progArea.querySelector('div:first-child');if(hdr)hdr.textContent='OCR 识别中 ('+completed+'/'+total+')';
-      processNext(index+1);
-    }).catch(function(err){
-      completed++;
-      showToast(file.name+' 识别失败: '+err.message,'error');
-      processNext(index+1);
-    });
-  }
-  processNext(0);
+      worker.recognize(file,{rotateAuto:false},{logger:function(m){
+        if(m.status==='recognizing text'){
+          var pct=Math.round(((completed+m.progress)/total)*100);
+          var fill=document.getElementById('ocr-prog-fill');if(fill)fill.style.width=pct+'%';
+        }
+      }}).then(function(r){
+        if(smartParseImageText)smartParseImageText+='\n';
+        smartParseImageText+=r.data.text;completed++;
+        if(hdr)hdr.textContent='OCR 识别中 ('+completed+'/'+total+')';
+        processNext(index+1);
+      }).catch(function(err){
+        completed++;showToast(file.name+' 识别失败: '+err.message,'error');processNext(index+1);
+      });
+    }
+    processNext(0);
+  }).catch(function(err){
+    progArea.innerHTML='<div style="color:var(--danger);font-size:13px;padding:12px">引擎启动失败: '+err.message+'<br><span style="font-size:11px">请刷新页面重试</span></div>';
+    inpEl.style.borderColor='';
+  });
 }
 
 function executeSmartParse(){
